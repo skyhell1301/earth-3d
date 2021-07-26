@@ -18,6 +18,7 @@ import XYZ from 'ol/source/XYZ';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import starField from "../assets/img/starfield.png";
 import getEarth from "../help/earth";
+import {getXYZCoordinates} from "../help/coordinatesCalculate";
 
 function OpenLayersTest() {
 
@@ -27,6 +28,9 @@ function OpenLayersTest() {
   const map3dRef = useRef(null);
 
   useEffect(() => {
+
+    let is3dState = true
+
     let renderer = new THREE.WebGLRenderer({antialias: true});
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -36,11 +40,11 @@ function OpenLayersTest() {
 
     let hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.3);
     let dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    hemiLight.position.set(0, 100, 0);
+    hemiLight.position.set(100, 0, 0);
     hemiLight.matrixAutoUpdate = false;
     hemiLight.updateMatrix();
 
-    dirLight.position.set(3, 10, -1000);
+    dirLight.position.set(1000, 0, 0);
     dirLight.castShadow = true;
 
     scene.add(hemiLight);
@@ -63,22 +67,31 @@ function OpenLayersTest() {
       }
     );
 
+    const width = window.innerWidth
+    const height = window.innerHeight
+    const aspect = width / height
 
-    let coef = 500
-    let camera = new THREE.OrthographicCamera(
-      -window.innerWidth / coef,
-      window.innerWidth / coef,
-      window.innerHeight / coef,
-      -window.innerHeight / coef,
-      1,
-      200
+    const deltaZoom = 0.7
+
+
+    const cameraSize = 5;
+    let cameraCoefficient = 2
+
+    let cameraOrt = new THREE.OrthographicCamera(
+      (cameraSize * aspect) / - cameraCoefficient,
+      (cameraSize * aspect) / cameraCoefficient,
+      cameraSize / cameraCoefficient,
+      cameraSize / -cameraCoefficient,
+      0.2,
+      1000
     )
 
-    camera.position.set(0, 0, 5);
+    cameraOrt.position.set(1.05, 0, -1.05);
 
-    let controls = new OrbitControls(camera, renderer.domElement);
+    let controls = new OrbitControls(cameraOrt, renderer.domElement);
+    controls.zoomSpeed = 0.6
 
-    let earth = getEarth(camera)
+    let earth = getEarth(cameraOrt)
     earth.visible = true
 
     let globe = new THREE.Mesh(
@@ -89,15 +102,15 @@ function OpenLayersTest() {
     globe.visible = false
     globe.position.set(0, 0, 0)
 
-    scene.add(camera);
+    scene.add(cameraOrt);
     scene.add(earth)
     scene.add(globe);
 
     function animate() {
       // requestAnimationFrame(animate)
-      renderer.render(scene, camera);
+      renderer.render(scene, cameraOrt);
     }
-    setTimeout(animate,1000)
+    // setTimeout(animate,1000)
 
 
     let osm = new layer.Tile({
@@ -119,8 +132,8 @@ function OpenLayersTest() {
 
     let map2d = new Map({
       layers: [
-        // osm,
         new TileLayer({
+          minZoom: 5.3,
           source: new XYZ({
             url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png'
           })
@@ -132,12 +145,7 @@ function OpenLayersTest() {
 
     let map3d = new Map({
       layers: [
-        osm,
-        // new TileLayer({
-        //   source: new XYZ({
-        //     url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-        //   })
-        // })
+        osm
       ],
       target: map3dRef.current.id,
       view: view3d
@@ -159,6 +167,7 @@ function OpenLayersTest() {
             let transform = canvas.style.transform;
 
             let matrix = transform
+              // eslint-disable-next-line
               .match(/^matrix\(([^\(]*)\)$/)[1]
               .split(",")
               .map(Number);
@@ -177,18 +186,29 @@ function OpenLayersTest() {
       globe.material.needsUpdate = true;
     });
 
+    map2d.on('rendercomplete', ()=>{
+      if(!is3dState) {
+        cameraOrt.zoom = view2d.getZoom() + deltaZoom
+        const xyz = getXYZCoordinates(olProj.transform(view2d.getCenter(),'EPSG:3857', 'EPSG:4326'))
+        cameraOrt.position.set(xyz[0], xyz[1], xyz[2])
+        cameraOrt.lookAt(0,0,0)
+      }
+      updateView()
+    })
+
     let raycaster = new THREE.Raycaster();
     let currentWidth = 1000;
 
+    controls.addEventListener('change', ()=> {
+      if(is3dState) {
+        view2d.setZoom(cameraOrt.zoom - deltaZoom)
+      }
+      animate()
+    })
 
-    // map2d.on('rendercomplete', ()=>{
-    //   console.log(view2d.getCenter())
-    // })
-
-    controls.addEventListener('change', animate)
     controls.addEventListener('end', function (event) {
-      raycaster.setFromCamera({x: 0, y: 0}, camera);
-      view2d.setZoom(camera.zoom)
+      raycaster.setFromCamera({x: 0, y: 0}, cameraOrt);
+
       let intersects = raycaster.intersectObject(globe);
 
       let x = map3d.getCoordinateFromPixel([
@@ -208,13 +228,14 @@ function OpenLayersTest() {
       //   features: [circle]
       // });
       // osm.setExtent(circleSource.getExtent());
-      view2d.animate({
-        center:olProj.transform([x,y],'EPSG:4326', 'EPSG:3857')
-      })
-      // view2d.setCenter(olProj.transform([x,y],'EPSG:4326', 'EPSG:3857'))
-      // view3d.setCenter(olProj.transform([x,y],'EPSG:4326', 'EPSG:3857'))
 
-      switch (Math.floor(camera.zoom)) {
+      view2d.setCenter(olProj.transform([x,y],'EPSG:4326', 'EPSG:3857'))
+
+      updateView()
+    })
+
+    let updateView = () => {
+      switch (Math.floor(cameraOrt.zoom)) {
         case 1:
           earth.visible = true
           globe.visible = false
@@ -239,29 +260,54 @@ function OpenLayersTest() {
             currentWidth = 4000;
           }
           break;
-        case 4:
-          if (globe.layers.mask === 0) {
-            globe.visible = true
-            earth.visible = true
-          }
-          break
-        case 5:
-          globe.visible = false
-          earth.visible = false
-          break;
         default:
           break;
       }
-    });
+
+      if(Math.floor(cameraOrt.zoom) < 6) {
+        if(!is3dState) {
+          is3dState = true
+          open3dMap()
+        }
+      } else {
+        if(is3dState) {
+          is3dState = false
+          open2dMap()
+        }
+      }
+
+      animate()
+    }
+    const open2dMap = () => {
+      map2dRef.current.style.visibility = 'visible'
+      map3dRef.current.style.visibility = 'hidden'
+    }
+    const open3dMap = () => {
+      map2dRef.current.style.visibility = 'hidden'
+      map3dRef.current.style.visibility = 'visible'
+    }
+
+    // On window resize, adjust camera aspect ratio and renderer size
+    window.addEventListener('resize', function () {
+
+      const newWidth = window.innerWidth
+      const newHeight = window.innerHeight
+      const newAspect = newWidth / newHeight
+
+      cameraOrt.left = (cameraSize * newAspect) / -cameraCoefficient
+      cameraOrt.right = (cameraSize * newAspect) / cameraCoefficient
+      cameraOrt.updateProjectionMatrix();
+
+      renderer.setSize(newWidth, newHeight);
+      animate()
+    })
+
+
   }, [])
   return (
     <div id="container" className='container'>
-      <div>
         <div ref={map3dRef} className='map3d' id='map3d'></div>
-      </div>
-      <div>
         <div ref={map2dRef} className='map2d' id='map2d'></div>
-      </div>
     </div>
   )
 }
