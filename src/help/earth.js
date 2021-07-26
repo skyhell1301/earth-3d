@@ -162,7 +162,7 @@ let getEarth = function (camera) {
       },
       glow: {
         size: 0.02,
-        intensity: 0.7,
+        intensity: 0.1,
         fade: 7,
         color: 0x93cfef
       }
