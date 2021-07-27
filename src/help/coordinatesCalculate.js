@@ -7,7 +7,7 @@ export const getXYZCoordinates = XYCoordinates => {
   const earthEquatorRadiusN = 1 //экваториальный радиус нормированный
   const f = (earthEquatorRadius - earthPolarRadius) / earthEquatorRadius
   const e2 = f * (2 - f) //первый эксцентриситет
-  const N1 = earthEquatorRadiusN / Math.sqrt(1 - (e2 * (Math.sin(y)**2))) //радиус кривизны первого вертикаля
+  const N1 = earthEquatorRadiusN / Math.sqrt(1 - (e2 * (Math.sin(y) ** 2))) //радиус кривизны первого вертикаля
 
   const X = (N1 + h) * Math.cos(x) * Math.cos(y)
   const Y = (N1 + h - (e2 * N1)) * Math.sin(y)
@@ -20,4 +20,12 @@ export const getXYZCoordinates = XYCoordinates => {
 
 export const getNormalHeight = height => {
   return height / 6378.137
+}
+
+export const eciToLocalCoordinates = (eci) => {
+  let local = {}
+  local.x = eci.x
+  local.y = eci.z
+  local.z = -eci.y
+  return local
 }

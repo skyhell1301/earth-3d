@@ -18,13 +18,12 @@ import XYZ from 'ol/source/XYZ';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import starField from "../assets/img/starfield.png";
 import getEarth from "../help/earth";
-import {getNormalHeight, getXYZCoordinates} from "../help/coordinatesCalculate";
-import {MTLLoader} from 'three/examples/jsm/loaders/MTLLoader';
-import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader';
+import {eciToLocalCoordinates, getNormalHeight, getXYZCoordinates} from "../help/coordinatesCalculate";
 import satelliteMtl from '../assets/models/satellite_obj.mtl'
 import satelliteObj from '../assets/models/satellite_obj.obj'
 
 import * as satellite from 'satellite.js'
+import {createSpacecraft} from "../help/spacecraft";
 
 function OpenLayersTest() {
 
@@ -44,6 +43,7 @@ function OpenLayersTest() {
 
     let scene = new THREE.Scene();
 
+    //--------------Свет-----------------------
     let hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.3);
     let dirLight = new THREE.DirectionalLight(0xffffff, 0.65);
     hemiLight.position.set(100, 0, 0);
@@ -56,14 +56,14 @@ function OpenLayersTest() {
     scene.add(hemiLight);
     scene.add(dirLight);
 
+    //--------Галактика----------------
     let textureLoader = new THREE.TextureLoader();
-    // Galaxy
     let galaxyMaterial = new THREE.MeshBasicMaterial({
       side: THREE.BackSide
     })
-    let galaxy = new THREE.Mesh(new THREE.SphereGeometry(30, 32, 32), galaxyMaterial);
+    let galaxy = new THREE.Mesh(new THREE.BoxGeometry(20, 20, 20), galaxyMaterial);
+    galaxy.name = 'galaxy'
 
-// Load Galaxy Textures
     textureLoader.crossOrigin = true;
     textureLoader.load(
       starField,
@@ -73,32 +73,33 @@ function OpenLayersTest() {
       }
     );
 
+    //--------------Камера--------------------
     const width = window.innerWidth
     const height = window.innerHeight
     const aspect = width / height
-
     const deltaZoom = 0.7
-
-
     const cameraSize = 5;
     let cameraCoefficient = 2
 
-    let cameraOrt = new THREE.OrthographicCamera(
-      (cameraSize * aspect) / -cameraCoefficient,
-      (cameraSize * aspect) / cameraCoefficient,
-      cameraSize / cameraCoefficient,
-      cameraSize / -cameraCoefficient,
-      0.2,
-      1000
-    )
+    // let cameraOrt = new THREE.OrthographicCamera(
+    //   (cameraSize * aspect) / -cameraCoefficient,
+    //   (cameraSize * aspect) / cameraCoefficient,
+    //   cameraSize / cameraCoefficient,
+    //   cameraSize / -cameraCoefficient,
+    //   0,
+    //   1000
+    // )
 
+    let cameraOrt = new THREE.PerspectiveCamera(45,aspect,0.1, 2000)
     cameraOrt.position.set(1.05, 0, -1.05);
 
     let controls = new OrbitControls(cameraOrt, renderer.domElement);
-    controls.zoomSpeed = 0.6
-
+    // controls.zoomSpeed = 0.6
+    scene.add(cameraOrt);
+    //------------------Земля---------------------------------
     let earth = getEarth(cameraOrt)
     earth.visible = true
+    scene.add(earth)
 
     let globe = new THREE.Mesh(
       new THREE.SphereGeometry(1, 64, 64),
@@ -108,80 +109,42 @@ function OpenLayersTest() {
     globe.visible = false
     globe.position.set(0, 0, 0)
 
-    let satelliteGeometry = new THREE.SphereGeometry(getNormalHeight(200))
-    let satelliteMaterial = new THREE.MeshStandardMaterial({color: 'white'})
-    let spacecraft = new THREE.Mesh(satelliteGeometry, satelliteMaterial)
+    scene.add(globe);
 
+    //-----------Спутник-------------
     // TRITON-1
     let tleLine1 = '1 39427U 13066M   21203.82189194  .00000294  00000-0  54799-4 0  9994',
       tleLine2 = '2 39427  97.7764 149.8720 0111916 237.6857 121.3472 14.68267694410407';
 
-    let satrec = satellite.twoline2satrec(tleLine1, tleLine2)
+    //YAMAL-601
+    // let tleLine1 = '1 44307U 19031A   21207.54368872  .00000104  00000-0  00000-0 0  9992',
+    //   tleLine2 = '2 44307   0.0114  89.4434 0002164  41.7034  58.0069  1.00271648  8016'
 
     let date = new Date()
-    let positionAndVelocity = satellite.propagate(satrec, date)
-    let positionEci = positionAndVelocity.position
-    spacecraft.position.set(getNormalHeight(positionEci.x), getNormalHeight(positionEci.z), getNormalHeight(positionEci.y))
-    // scene.add(spacecraft)
 
-    let mtlLoader = new MTLLoader();
-    mtlLoader.load(satelliteMtl, function (materials) {
-      materials.preload();
-
+    let spacecraft
+    let myObjPromise = createSpacecraft(tleLine1, tleLine2, satelliteMtl, satelliteObj)
+    myObjPromise.then(myObj => {
+      spacecraft = myObj
+      scene.add(spacecraft)
+      spacecraft.orbit.visible = false
+      scene.add(spacecraft.orbit)
+      startSpacecraftMove()
+      console.log(scene)
+      return myObj
     });
 
-    async function loadModel () {
-      let loader = new OBJLoader();
-      return await loader.loadAsync(satelliteObj, (object) => {
-        // object.name = 'spacecraft'
-        // object.position.set(getNormalHeight(positionEci.x), getNormalHeight(positionEci.z), getNormalHeight(positionEci.y))
-        // object.scale.set(0.01,0.01,0.01)
-        return object
-      })
-
-    }
-
-    let model = loadModel()
-    // model.name = 'spacecraft'
-    // model.position.set(getNormalHeight(positionEci.x), getNormalHeight(positionEci.z), getNormalHeight(positionEci.y))
-    // model.scale.set(0.01,0.01,0.01)
-    scene.add(model);
-
-
-    let array = []
-
-    for (let i = 0; i < 100; i = i + 1) {
-      let positionAndVelocity = satellite.propagate(satrec, addMinutes(date, i))
-      let positionEci = positionAndVelocity.position
-
-      array.push(new THREE.Vector3(getNormalHeight(positionEci.x), getNormalHeight(positionEci.z), getNormalHeight(positionEci.y)))
-    }
-
-    const lineMaterial = new THREE.LineBasicMaterial({
-      color: 'red'
-    });
-    const lineGeometry = new THREE.BufferGeometry().setFromPoints(array);
-
-    const line = new THREE.Line(lineGeometry, lineMaterial);
-    scene.add(line);
-
-    // console.log(array)
-
-    function addMinutes(date, minutes) {
-      return new Date(date.getTime() + minutes * 60000);
-    }
-
+    //---------Ось Земли--------------
     const axisMaterial = new THREE.LineBasicMaterial({
       color: 'white'
     });
     let axisPoints = [new THREE.Vector3(0, 1.5, 0), new THREE.Vector3(0, -1.5, 0)]
     const axisGeometry = new THREE.BufferGeometry().setFromPoints(axisPoints);
     let earthAxis = new THREE.Line(axisGeometry, axisMaterial)
+    earthAxis.name = 'axis'
     scene.add(earthAxis)
 
-    scene.add(cameraOrt);
-    scene.add(earth)
-    scene.add(globe);
+    //----------------------
 
     function animate() {
       // requestAnimationFrame(animate)
@@ -189,20 +152,26 @@ function OpenLayersTest() {
       renderer.render(scene, cameraOrt);
     }
 
+    function addMinutes(date, minutes) {
+      return new Date(date.getTime() + minutes * 60000);
+    }
+
     // setTimeout(animate,1000)
+    const startSpacecraftMove = () => {
+      let i = 0
+      let deltaMin = 0.1
+      setInterval(() => {
+        if (spacecraft) spacecraft.move(addMinutes(date, i))
 
-    let i = 0
-    setInterval(() => {
-      positionAndVelocity = satellite.propagate(satrec, addMinutes(date, i))
-      positionEci = positionAndVelocity.position
-      // sc.position.set(getNormalHeight(positionEci.x), getNormalHeight(positionEci.z), getNormalHeight(positionEci.y))
+        // 0.250684477 градуса за 1 минуту вращается Земля
+        globe.rotateY(satellite.degreesToRadians(deltaMin * 0.250684477))
+        earth.rotateY(satellite.degreesToRadians(deltaMin * 0.250684477))
 
-      globe.rotateY(satellite.degreesToRadians(0.2))
-      earth.rotateY(satellite.degreesToRadians(0.2))
+        i = i + deltaMin
+        animate()
+      }, 30)
+    }
 
-      i = i + 0.2
-      animate()
-    }, 30)
 
     let osm = new layer.Tile({
       extent: [-180, -90, 180, 90],
@@ -290,6 +259,49 @@ function OpenLayersTest() {
     let raycaster = new THREE.Raycaster();
     let currentWidth = 1000;
 
+    // Track mouse movement to pick objects
+    const mouse = new THREE.Vector2();
+
+    window.addEventListener('click', ({clientX, clientY}) => {
+      const {innerWidth, innerHeight} = window;
+
+      mouse.x = (clientX / innerWidth) * 2 - 1;
+      mouse.y = -(clientY / innerHeight) * 2 + 1;
+      let vector = new THREE.Vector3(mouse.x, mouse.y, 1);
+      vector.unproject(cameraOrt);
+      let ray = new THREE.Raycaster(cameraOrt.position, vector.sub(cameraOrt.position).normalize());
+      // let raycasterOver = new THREE.Raycaster();
+      // raycasterOver.setFromCamera(mouse, cameraOrt);
+
+      let intersects = ray.intersectObjects(scene.children, true)
+      // let intersects = raycasterOver.intersectObject(spacecraft)
+      // if(intersects.length > 0) console.log(intersects)
+      console.log(intersects[0]?.object)
+      // if(intersects.length > 0) {
+      //   if (intersects[0].object.name === 'Satellite_Grp pCube19 group2 group3') {
+      //     container.style.cursor = 'pointer';
+          // console.log('Mouse is over')
+        // } else {
+
+          // container.style.cursor = 'auto';
+          // console.log('Mouse is off')
+        // }
+      // }
+      // console.log(intersects)
+      // if (intersects) {
+      //   spacecraft.orbit.visible = true
+      // } else {
+      //   spacecraft.orbit.visible = false
+      // }
+      // const intersects = raycaster.intersectObjects( scene.children );
+      //
+      // for ( let i = 0; i < intersects.length; i ++ ) {
+      //
+      //   intersects[ i ].object.material.color.set( 0xff0000 );
+      //
+      // }
+    });
+
     controls.addEventListener('change', () => {
       if (is3dState) {
         view2d.setZoom(cameraOrt.zoom - deltaZoom)
@@ -327,11 +339,11 @@ function OpenLayersTest() {
 
     let updateView = () => {
       switch (Math.floor(cameraOrt.zoom)) {
-        case 1:
+        case 2:
           earth.visible = true
           globe.visible = false
           break;
-        case 2:
+        case 3:
           globe.visible = true
           earth.visible = false
           map3dRef.current.style.width = "2000px";
@@ -342,7 +354,7 @@ function OpenLayersTest() {
             currentWidth = 2000;
           }
           break;
-        case 3:
+        case 4:
           map3dRef.current.style.width = "4000px";
           map3dRef.current.style.height = "2000px";
           if (currentWidth !== 4000) {
@@ -385,8 +397,9 @@ function OpenLayersTest() {
       const newHeight = window.innerHeight
       const newAspect = newWidth / newHeight
 
-      cameraOrt.left = (cameraSize * newAspect) / -cameraCoefficient
-      cameraOrt.right = (cameraSize * newAspect) / cameraCoefficient
+      // cameraOrt.left = (cameraSize * newAspect) / -cameraCoefficient
+      // cameraOrt.right = (cameraSize * newAspect) / cameraCoefficient
+      cameraOrt.aspect = newAspect
       cameraOrt.updateProjectionMatrix();
 
       renderer.setSize(newWidth, newHeight);
