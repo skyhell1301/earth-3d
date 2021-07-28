@@ -3,11 +3,22 @@ import {OBJLoader} from "three/examples/jsm/loaders/OBJLoader";
 import * as satellite from "satellite.js";
 import {eciToLocalCoordinates, getNormalHeight} from "./coordinatesCalculate";
 import * as THREE from "three";
+import TLE from "tle";
 
-export async function createSpacecraft(tleLine1, tleLine2, mtl, obj) {
+export async function createSpacecraft(tle, mtl, obj) {
+
+  let tleArray = tle.split('\n')
+  let tleLine1, tleLine2
+
+  if(tleArray.length > 2) {
+    tleLine1 = tleArray[1]
+    tleLine2 = tleArray[2]
+  } else {
+    tleLine1 = tleArray[0]
+    tleLine2 = tleArray[1]
+  }
 
   let model = await loadModel(mtl, obj)
-  model.children.forEach(mesh => mesh.name = 'spacecraft')
   let satrec = satellite.twoline2satrec(tleLine1, tleLine2)
 
   let date = new Date()
@@ -22,26 +33,39 @@ export async function createSpacecraft(tleLine1, tleLine2, mtl, obj) {
   model.rotateY(satellite.degreesToRadians(-90))
 
   let spacecraft = {
-    orbit: createOrbit(satrec, date),
+    tle: TLE.parse(tle),
+    date: date,
+    orbit: createOrbit(satrec, date, TLE.parse(tle).motion),
+    isOrbitShow: true,
     move: function move(date) {
+      this.date = date
       positionAndVelocity = satellite.propagate(satrec, date)
       const coordinate = eciToLocalCoordinates(positionAndVelocity.position)
       spacecraft.position.set(getNormalHeight(coordinate.x), getNormalHeight(coordinate.y), getNormalHeight(coordinate.z))
       spacecraft.lookAt(0,0,0)
       spacecraft.rotateY(satellite.degreesToRadians(-90))
+      spacecraft.updateMatrixWorld()
     },
+    showOrbit: function showOrbit() {
+      this.orbit.visible = true
+      this.isOrbitShow = true
+    },
+    hideOrbit: function hideOrbit() {
+      this.orbit.visible = false
+      this.isOrbitShow = false
+    }
   }
 
   spacecraft.__proto__ = model
-  console.log(spacecraft)
   return spacecraft
 }
 
-function createOrbit(satrec, date) {
+function createOrbit(satrec, date, motion) {
+  let minuteForTurn = Math.round(1440 / motion)
   let positionAndVelocity = satellite.propagate(satrec, date)
   let positionEci = positionAndVelocity.position
   let orbitPointsArray = []
-  for (let i = 0; i < 1437; i = i + 1) {
+  for (let i = 0; i <= minuteForTurn; i = i + 1) {
     positionAndVelocity = satellite.propagate(satrec, addMinutes(date, i))
     positionEci = positionAndVelocity.position
     orbitPointsArray.push(new THREE.Vector3(getNormalHeight(positionEci.x), getNormalHeight(positionEci.z), -getNormalHeight(positionEci.y)))
