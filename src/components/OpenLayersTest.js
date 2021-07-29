@@ -19,15 +19,16 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import starField from "../assets/img/starfield.png";
 import getEarth from "../help/earth";
 import {getXYZCoordinates} from "../help/coordinatesCalculate";
-import satelliteMtl from '../assets/models/satellite_obj.mtl'
-import satelliteObj from '../assets/models/satellite_obj.obj'
+// import satelliteMtl from '../assets/models/satellite_obj.mtl'
+// import satelliteMtl from '../assets/models/smotr/smotr.mtl'
+// import satelliteObj from '../assets/models/satellite_obj.obj'
+// import satelliteObj from '../assets/models/smotr/smotr.obj'
+import satelliteStl from '../assets/models/smotr/smotr_1.stl'
 
 import * as satellite from 'satellite.js'
 import {createSpacecraft} from "../help/spacecraft";
 
 function OpenLayersTest() {
-
-  // const [cameraZoom, setCameraZoom] = useState(1);
 
   const map2dRef = useRef(null);
   const map3dRef = useRef(null);
@@ -43,6 +44,12 @@ function OpenLayersTest() {
     map3dRef.current.appendChild(renderer.domElement)
 
     let scene = new THREE.Scene()
+
+    // const size = 5;
+    // const divisions = 20;
+
+    // const gridHelper = new THREE.GridHelper(size, divisions);
+    // scene.add(gridHelper);
 
     //--------------Свет-----------------------
     let hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.3)
@@ -141,25 +148,46 @@ function OpenLayersTest() {
     let date = new Date()
 
     let spacecraft
-    let myObjPromise = createSpacecraft(tle, satelliteMtl, satelliteObj)
-    myObjPromise.then(myObj => {
-      spacecraft = myObj
+    let myObjPromise = createSpacecraft(tle, satelliteStl)
+    myObjPromise.then(myStl => {
+      spacecraft = myStl
       scene.add(spacecraft)
       spacecraft.hideOrbit()
       scene.add(spacecraft.orbit)
+      scene.add(spacecraft.spacecraftPoint)
       startSpacecraftMove()
-      return myObj
     });
 
     //---------Ось Земли--------------
     const axisMaterial = new THREE.LineBasicMaterial({
       color: 'white'
-    });
+    })
     let axisPoints = [new THREE.Vector3(0, 1.5, 0), new THREE.Vector3(0, -1.5, 0)]
     const axisGeometry = new THREE.BufferGeometry().setFromPoints(axisPoints)
     let earthAxis = new THREE.Line(axisGeometry, axisMaterial)
     earthAxis.name = 'axis'
-    // scene.add(earthAxis)
+    scene.add(earthAxis)
+
+    //------Оси координат-----
+    const Xdir = new THREE.Vector3(1, 0, 0);
+    const Ydir = new THREE.Vector3(0, 1, 0);
+    const Zdir = new THREE.Vector3(0, 0, 1);
+    Xdir.normalize();
+    Ydir.normalize();
+    Zdir.normalize();
+
+    const origin = new THREE.Vector3(0, 0, 0);
+    const length = 1.5;
+
+    const axisX = new THREE.ArrowHelper(Xdir, origin, length, 'blue');
+    const axisY = new THREE.ArrowHelper(Ydir, origin, length, 'yellow');
+    const axisZ = new THREE.ArrowHelper(Zdir, origin, length, 'green');
+
+    const axisGroup = new THREE.Group()
+    axisGroup.add(axisX)
+    axisGroup.add(axisY)
+    axisGroup.add(axisZ)
+    scene.add(axisGroup);
 
     //----------------------
 
@@ -187,7 +215,7 @@ function OpenLayersTest() {
 
         i = i + deltaMin
         render()
-      }, 18)
+      }, 17)
     }
 
     let osm = new layer.Tile({
@@ -243,11 +271,8 @@ function OpenLayersTest() {
             mapContext.globalAlpha = opacity === "" ? 1 : Number(opacity);
             let transform = canvas.style.transform;
 
-            let matrix = transform
-              // eslint-disable-next-line
-              .match(/^matrix\(([^\(]*)\)$/)[1]
-              .split(",")
-              .map(Number);
+            // eslint-disable-next-line
+            let matrix = transform.match(/^matrix\(([^\(]*)\)$/)[1].split(",").map(Number);
 
             CanvasRenderingContext2D.prototype.setTransform.apply(
               mapContext,
@@ -294,17 +319,19 @@ function OpenLayersTest() {
       let ray = new THREE.Raycaster()
       ray.setFromCamera(mouse, cameraOrt)
       if (spacecraft) {
-        let intersects = ray.intersectObjects(spacecraft.children, true)
+        let intersects = ray.intersectObject(spacecraft, true)
         if (intersects.length > 0) {
           spacecraft.traverse(obj => {
             if (obj.isMesh) {
               obj.material.color?.set('red')
+              document.body.style.cursor = 'pointer'
             }
           })
         } else {
           spacecraft.traverse(obj => {
             if (obj.isMesh) {
               obj.material.color?.set('white')
+              document.body.style.cursor = 'default'
             }
           })
         }
@@ -319,7 +346,7 @@ function OpenLayersTest() {
       let ray = new THREE.Raycaster()
       ray.setFromCamera(mouse, cameraOrt)
       if (spacecraft) {
-        let intersects = ray.intersectObjects(spacecraft.children, true)
+        let intersects = ray.intersectObject(spacecraft, true)
         if (intersects.length > 0) {
           if (spacecraft.isOrbitShow) {
             spacecraft.hideOrbit()
@@ -393,6 +420,13 @@ function OpenLayersTest() {
           break;
         default:
           break;
+      }
+      if (spacecraft) {
+        if (Math.floor(cameraOrt.zoom) < 3) {
+          spacecraft.visible = true
+        } else {
+          spacecraft.visible = false
+        }
       }
 
       if (Math.floor(cameraOrt.zoom) < 6) {

@@ -13,19 +13,24 @@ export const getXYZCoordinates = XYCoordinates => {
   const Y = (N1 + h - (e2 * N1)) * Math.sin(y)
   const Z = -((N1 + h) * Math.sin(x) * Math.cos(y))
 
-  const XYZCoordinates = [X, Y, Z]
-
-  return XYZCoordinates
+  return [X, Y, Z]
 }
 
 export const getNormalHeight = height => {
   return height / 6378.137
 }
 
-export const eciToLocalCoordinates = (eci) => {
+export const eciToLocalCoordinates = eci => {
   let local = {}
   local.x = eci.x
   local.y = eci.z
   local.z = -eci.y
   return local
+}
+export const localToEciCoordinates = local => {
+  let eci = {}
+  eci.x = local.x
+  eci.y = -local.z
+  eci.z = local.y
+  return eci
 }
