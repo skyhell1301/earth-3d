@@ -42,14 +42,18 @@ export async function createSpacecraft(tle, stl) {
     move: function move(date) {
       this.date = date
       positionAndVelocity = satellite.propagate(satrec, date)
-      const localCoordinate = eciToLocalCoordinates(positionAndVelocity.position)
+      let ecf = satellite.eciToEcf(positionAndVelocity.position, satellite.gstime(date))
+      const localCoordinate = eciToLocalCoordinates(ecf)
       spacecraft.position.set(getNormalHeight(localCoordinate.x), getNormalHeight(localCoordinate.y), getNormalHeight(localCoordinate.z))
 
       this.updateSpacecraftPoint(getSpacecraftPoint(localCoordinate, date))
-
+      // this.updateOrbit()
       spacecraft.lookAt(0, 0, 0)
       spacecraft.rotateY(satellite.degreesToRadians(180))
       spacecraft.updateMatrixWorld()
+    },
+    updateOrbit: function () {
+      console.log(this.orbit.geometry.attributes.position)
     },
     showOrbit: function () {
       this.orbit.visible = true
@@ -69,22 +73,29 @@ export async function createSpacecraft(tle, stl) {
 }
 
 function createOrbit(satrec, date, motion) {
-  let minuteForTurn = Math.round(1440 / motion)
+  let minuteForTurn =  1440//Math.round(1440 / motion)
   let positionAndVelocity = satellite.propagate(satrec, date)
   let positionEci = positionAndVelocity.position
   let orbitPointsArray = []
   for (let i = 0; i <= minuteForTurn + 1; i = i + 1) {
     positionAndVelocity = satellite.propagate(satrec, addMinutes(date, i))
     positionEci = positionAndVelocity.position
-    orbitPointsArray.push(new THREE.Vector3(getNormalHeight(positionEci.x), getNormalHeight(positionEci.z), -getNormalHeight(positionEci.y)))
+    let positionEcf = satellite.eciToEcf(positionEci, satellite.gstime( addMinutes(date, i)))
+    positionEcf = eciToLocalCoordinates(positionEcf)
+    orbitPointsArray.push(new THREE.Vector3(getNormalHeight(positionEcf.x), getNormalHeight(positionEcf.y), getNormalHeight(positionEcf.z)))
   }
   const lineMaterial = new THREE.LineBasicMaterial({
     color: 'red'
   });
   const lineGeometry = new THREE.BufferGeometry().setFromPoints(orbitPointsArray)
 
+  // console.log(orbitPointsArray[0])
+  // console.log(lineGeometry)
+
+  // console.log(new THREE.Line(lineGeometry, lineMaterial).geometry.attributes.position.array)
   return new THREE.Line(lineGeometry, lineMaterial)
 }
+
 
 
 function createSpacecraftPoint(coordinates) {

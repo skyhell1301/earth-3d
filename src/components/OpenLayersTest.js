@@ -27,6 +27,7 @@ import satelliteStl from '../assets/models/smotr/smotr_1.stl'
 
 import * as satellite from 'satellite.js'
 import {createSpacecraft} from "../help/spacecraft";
+import {createSun, getSunCoordinates} from "../help/sun";
 
 function OpenLayersTest() {
 
@@ -53,16 +54,16 @@ function OpenLayersTest() {
 
     //--------------Свет-----------------------
     let hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.3)
-    let dirLight = new THREE.DirectionalLight(0xffffff, 0.65)
+    // let dirLight = new THREE.DirectionalLight(0xffffff, 0.65)
     hemiLight.position.set(100, 0, 0)
     hemiLight.matrixAutoUpdate = false
     hemiLight.updateMatrix()
 
-    dirLight.position.set(1000, 0, 0)
-    dirLight.castShadow = true;
+    // dirLight.position.set(1000, 0, 0)
+    // dirLight.castShadow = true;
 
     scene.add(hemiLight)
-    scene.add(dirLight)
+    // scene.add(dirLight)
 
     //--------Галактика----------------
     let textureLoader = new THREE.TextureLoader();
@@ -152,7 +153,7 @@ function OpenLayersTest() {
     myObjPromise.then(myStl => {
       spacecraft = myStl
       scene.add(spacecraft)
-      spacecraft.hideOrbit()
+      spacecraft.showOrbit()
       scene.add(spacecraft.orbit)
       scene.add(spacecraft.spacecraftPoint)
       startSpacecraftMove()
@@ -166,7 +167,7 @@ function OpenLayersTest() {
     const axisGeometry = new THREE.BufferGeometry().setFromPoints(axisPoints)
     let earthAxis = new THREE.Line(axisGeometry, axisMaterial)
     earthAxis.name = 'axis'
-    scene.add(earthAxis)
+    // scene.add(earthAxis)
 
     //------Оси координат-----
     const Xdir = new THREE.Vector3(1, 0, 0);
@@ -189,7 +190,12 @@ function OpenLayersTest() {
     axisGroup.add(axisZ)
     scene.add(axisGroup);
 
-    //----------------------
+    //------Солнце----------------
+    let Sun = createSun(date)
+    scene.add(Sun)
+    scene.add(Sun.point)
+
+    //------------------------------
 
     function render() {
       // requestAnimationFrame(render)
@@ -205,17 +211,19 @@ function OpenLayersTest() {
 
     const startSpacecraftMove = () => {
       let i = 0
+      // let deltaMin = 0.5
       let deltaMin = 0.02
       setInterval(() => {
         if (spacecraft) spacecraft.move(addMinutes(date, i))
+        if(Sun) Sun.move(addMinutes(date,i))
 
         // 0.250684477 градуса за 1 минуту вращается Земля
-        globe.rotateY(satellite.degreesToRadians(deltaMin * 0.250684477))
-        earth.rotateY(satellite.degreesToRadians(deltaMin * 0.250684477))
+        // globe.rotateY(satellite.degreesToRadians(deltaMin * 0.250684477))
+        // earth.rotateY(satellite.degreesToRadians(deltaMin * 0.250684477))
 
         i = i + deltaMin
         render()
-      }, 17)
+      }, 20)
     }
 
     let osm = new layer.Tile({
