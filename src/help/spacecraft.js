@@ -4,56 +4,63 @@ import * as THREE from "three";
 import TLE from "tle";
 import {STLLoader} from "three/examples/jsm/loaders/STLLoader";
 
-export async function createSpacecraft(tle, stl) {
-
-  let tleArray = tle.split('\n')
-  let tleLine1, tleLine2
-
-  if (tleArray.length > 2) {
-    tleLine1 = tleArray[1]
-    tleLine2 = tleArray[2]
-  } else {
-    tleLine1 = tleArray[0]
-    tleLine2 = tleArray[1]
-  }
+export async function createSpacecraft(tle, stl, date) {
 
   let model = await loadModel(stl)
   model = new THREE.Mesh(model, new THREE.MeshBasicMaterial())
 
-  let satrec = satellite.twoline2satrec(tleLine1, tleLine2)
-
-  let date = new Date()
+  let satrec = getSatrec(tle)
   let positionAndVelocity = satellite.propagate(satrec, date)
   let positionEci = positionAndVelocity.position
 
   model.scale.set(0.00003, 0.00003, 0.00003)
   // model.scale.set(0.1, 0.1, 0.1)
-  model.position.set(getNormalHeight(positionEci.x), getNormalHeight(positionEci.z), -getNormalHeight(positionEci.y))
-  model.lookAt(0, 0, 0)
-  model.rotateY(satellite.degreesToRadians(180))
+  // model.position.set(getNormalHeight(positionEci.x), getNormalHeight(positionEci.z), -getNormalHeight(positionEci.y))
+  // model.lookAt(0, 0, 0)
+  // model.rotateY(satellite.degreesToRadians(180))
   model.name = 'spacecraft'
 
   let spacecraft = {
     tle: TLE.parse(tle),
     date: date,
+    satrec: satrec,
     orbit: createOrbit(satrec, date, TLE.parse(tle).motion),
-    spacecraftPoint: createSpacecraftPoint(getSpacecraftPoint(positionEci, date)),
-    isOrbitShow: true,
+    spacecraftPoint: createSpacecraftPoint(getSpacecraftPoint(eciToLocalCoordinates(positionEci), date)),
+    isOrbitShow: false,
     move: function move(date) {
       this.date = date
-      positionAndVelocity = satellite.propagate(satrec, date)
-      let ecf = satellite.eciToEcf(positionAndVelocity.position, satellite.gstime(date))
+      positionAndVelocity = satellite.propagate(this.satrec, this.date)
+      let ecf = satellite.eciToEcf(positionAndVelocity.position, satellite.gstime(this.date))
       const localCoordinate = eciToLocalCoordinates(ecf)
       spacecraft.position.set(getNormalHeight(localCoordinate.x), getNormalHeight(localCoordinate.y), getNormalHeight(localCoordinate.z))
 
-      this.updateSpacecraftPoint(getSpacecraftPoint(localCoordinate, date))
+      this.updateSpacecraftPoint(getSpacecraftPoint(localCoordinate, this.date))
       // this.updateOrbit()
       spacecraft.lookAt(0, 0, 0)
       spacecraft.rotateY(satellite.degreesToRadians(180))
       spacecraft.updateMatrixWorld()
     },
     updateOrbit: function () {
-      console.log(this.orbit.geometry.attributes.position)
+      let minuteForTurn =  1440//Math.round(1440 / motion)
+      let positionAndVelocity = satellite.propagate(this.satrec, this.date)
+      let positionEci = positionAndVelocity.position
+      let orbitPointsArray = []
+      for (let i = 0; i <= minuteForTurn + 1; i = i + 1) {
+        positionAndVelocity = satellite.propagate(this.satrec, addMinutes(this.date, i))
+        positionEci = positionAndVelocity.position
+        let positionEcf = satellite.eciToEcf(positionEci, satellite.gstime(addMinutes(this.date, i)))
+        positionEcf = eciToLocalCoordinates(positionEcf)
+        orbitPointsArray.push(new THREE.Vector3(getNormalHeight(positionEcf.x), getNormalHeight(positionEcf.y), getNormalHeight(positionEcf.z)))
+      }
+      const lineGeometry = new THREE.BufferGeometry().setFromPoints(orbitPointsArray)
+      this.orbit.geometry.copy(lineGeometry)
+    },
+    updateTLE(tle) {
+      this.tle = TLE.parse(tle)
+      this.satrec = getSatrec(tle)
+      this.updateOrbit()
+      console.log(this.date)
+      this.move(this.date)
     },
     showOrbit: function () {
       this.orbit.visible = true
@@ -67,11 +74,18 @@ export async function createSpacecraft(tle, stl) {
       this.spacecraftPoint.position.set(coordinates.x, coordinates.y, coordinates.z)
     }
   }
-
   spacecraft.__proto__ = model
+  spacecraft.hideOrbit()
+  spacecraft.move(spacecraft.date)
   return spacecraft
 }
-
+/**
+ * Создание орбиты спутника
+ * @param {[satellite.twoline2satrec]} satrec Инициализированая спутниковая запись
+ * @param {[Date]} date Начальное время расчета
+ * @param {[Number]} motion Длительность расчета (мин)
+ * @return {[Line]} Возвращает объект орбиты типа THREE.Line
+ */
 function createOrbit(satrec, date, motion) {
   let minuteForTurn =  1440//Math.round(1440 / motion)
   let positionAndVelocity = satellite.propagate(satrec, date)
@@ -80,7 +94,7 @@ function createOrbit(satrec, date, motion) {
   for (let i = 0; i <= minuteForTurn + 1; i = i + 1) {
     positionAndVelocity = satellite.propagate(satrec, addMinutes(date, i))
     positionEci = positionAndVelocity.position
-    let positionEcf = satellite.eciToEcf(positionEci, satellite.gstime( addMinutes(date, i)))
+    let positionEcf = satellite.eciToEcf(positionEci, satellite.gstime(addMinutes(date, i)))
     positionEcf = eciToLocalCoordinates(positionEcf)
     orbitPointsArray.push(new THREE.Vector3(getNormalHeight(positionEcf.x), getNormalHeight(positionEcf.y), getNormalHeight(positionEcf.z)))
   }
@@ -89,15 +103,33 @@ function createOrbit(satrec, date, motion) {
   });
   const lineGeometry = new THREE.BufferGeometry().setFromPoints(orbitPointsArray)
 
-  // console.log(orbitPointsArray[0])
-  // console.log(lineGeometry)
-
-  // console.log(new THREE.Line(lineGeometry, lineMaterial).geometry.attributes.position.array)
   return new THREE.Line(lineGeometry, lineMaterial)
 }
+/**
+ * Получение инициализированой спутниковой записи
+ * @param {[tle]} tle TLE спутника
+ * @return {[satellite.twoline2satrec]} Возвращает инициализированую спутниковую запись
+ */
+function getSatrec (tle) {
+  let tleArray = tle.split('\n')
+  let tleLine1, tleLine2
 
+  if (tleArray.length > 2) {
+    tleLine1 = tleArray[1]
+    tleLine2 = tleArray[2]
+  } else {
+    tleLine1 = tleArray[0]
+    tleLine2 = tleArray[1]
+  }
+  let satrec = satellite.twoline2satrec(tleLine1, tleLine2)
+  return satrec
+}
 
-
+/**
+ * Создание подспутниковой точки
+ * @param {[tle]} coordinates TLE спутника
+ * @return {[satellite.twoline2satrec]} Возвращает инициализированую спутниковую запись
+ */
 function createSpacecraftPoint(coordinates) {
   let pointGeometry = new THREE.SphereGeometry(0.01)
   let pointMaterial = new THREE.MeshBasicMaterial({color: 'red'})
@@ -108,11 +140,11 @@ function createSpacecraftPoint(coordinates) {
 function getSpacecraftPoint(spacecraftCoordinates, date) {
   let spacecraftLonLatHeight = satellite.eciToGeodetic(spacecraftCoordinates, satellite.gstime(date))
   spacecraftLonLatHeight.height = 0
-  let b = ecfToEci(satellite.geodeticToEcf(spacecraftLonLatHeight),satellite.gstime(date))
+  let eci = ecfToEci(satellite.geodeticToEcf(spacecraftLonLatHeight),satellite.gstime(date))
   let pointCoordinates = {}
-  pointCoordinates.x = getNormalHeight(b.x)
-  pointCoordinates.y = getNormalHeight(b.y)
-  pointCoordinates.z = getNormalHeight(b.z)
+  pointCoordinates.x = getNormalHeight(eci.x)
+  pointCoordinates.y = getNormalHeight(eci.y)
+  pointCoordinates.z = getNormalHeight(eci.z)
   return pointCoordinates
 }
 

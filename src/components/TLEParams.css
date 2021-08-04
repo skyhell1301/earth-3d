@@ -1,0 +1,29 @@
+.tle-params-container {
+    z-index: 2;
+    color: white;
+    font-size: 18px;
+    position: absolute;
+    margin-top: 2px;
+    margin-left: 2px;
+    background: black;
+    height: 40%;
+}
+
+.tle-params__table {
+    display: flex;
+    grid-template-columns: 50% 50%;
+    align-items: center;
+    height: 100%;
+}
+.tle-params__table-column {
+    display: grid;
+    grid-template-rows: 5.5% 5.5% 5.5% 5.5% 5.5% 5.5% 5.5% 5.5% 5.5% 5.5% 5.5% 5.5% 5.5% 5.5% 5.5% 5.5% 5.5% 5.5%;
+    height: 100%;
+}
+
+.tle-params__table-item {
+    /*border: 1px solid white;*/
+    box-shadow: 0 0 4px .5px white;
+    padding: 5px;
+    overflow-wrap: break-word;
+}

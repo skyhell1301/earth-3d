@@ -1,14 +1,16 @@
-import {degToRad, radToDeg} from "three/src/math/MathUtils";
+import {degToRad} from "three/src/math/MathUtils";
 import * as THREE from "three";
 import {eciToLocalCoordinates, getNormalHeight} from "./coordinatesCalculate";
 import * as satellite from "satellite.js";
-import {ecfToEci} from "./spacecraft";
 
 export function getSunCoordinates(date) {
+  // date = new Date(date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(),
+  //   date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds()))
   //  UT – всемирное время в часах
-  let UT = date.getHours() + (date.getMinutes() / 60) + (date.getSeconds() / 3600)
+  let UT = date.getUTCHours() + (date.getUTCMinutes() / 60) + (date.getUTCSeconds() / 3600)
   // Вычисление модифицированной юлианской даты дня расчета.
-  let MD = 367 * date.getFullYear() - Math.floor(7 * (Math.floor((date.getMonth() + 9) / 12)) / 4) + Math.floor(275 * (date.getMonth() + 1) / 9) + date.getDate() - 678987
+  // let MD = 367 * date.getFullYear() - Math.floor(7 * (Math.floor((date.getMonth() + 9) / 12)) / 4) + Math.floor(275 * (date.getMonth() + 1) / 9) + date.getDate() - 678987
+  let MD = 367 * date.getUTCFullYear() - Math.trunc(7 * (date.getUTCFullYear() + (Math.trunc((date.getUTCMonth() + 9) / 12))) / 4) + Math.trunc(275 * (date.getUTCMonth() + 1) / 9) + date.getUTCDate() - 730530
 
   // Вычисление единичного геоцентрического вектора Солнца (X,Y,Z) на дату MD и время UT в эклиптической системе координат.
   let T = (MD - 51544.5) / 36525
@@ -25,7 +27,7 @@ export function getSunCoordinates(date) {
 
   let Xe = X
   let Ye = Y * Math.cos(degToRad(E)) - Z * Math.sin(degToRad(E))
-  let Ze = Y * Math.sin(degToRad(E)) - Z * Math.cos(degToRad(E))
+  let Ze = Y * Math.sin(degToRad(E)) + Z * Math.cos(degToRad(E))
 
   // Вычисление среднего звездного времени на дату MD и время UT.
   let S0 = 24110.54841 + 8640184 * T + 0.093104 * (T**2) - 0.0000062 * (T**3) // звездное гринвичевское время в полночь в секундах
@@ -42,10 +44,11 @@ export function getSunCoordinates(date) {
   return {x:Xg, y: Yg, z: Zg}
 }
 export function createSun(date) {
-  let Sun = new THREE.DirectionalLight(0xffffff, 0.85)
+  let Sun = new THREE.DirectionalLight(0xffffff, 0.5)
   Sun.point = new THREE.Mesh(new THREE.SphereGeometry(0.02), new THREE.MeshBasicMaterial({color: 'yellow'}))
   Sun.move = function (date) {
     let coordinates = eciToLocalCoordinates(getSunCoordinates(date))
+    // let coordinates = getSunCoordinates(date)
     let geo = {height: 1000000, latitude: Math.atan2(coordinates.z, Math.sqrt(coordinates.x**2 + coordinates.y**2)), longitude: Math.atan2(coordinates.y, coordinates.x)}
     let ecf = satellite.geodeticToEcf(geo)
     this.position.set(getNormalHeight(ecf.x), getNormalHeight(ecf.y), getNormalHeight(ecf.z))

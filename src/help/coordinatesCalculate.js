@@ -1,5 +1,5 @@
 export const getXYZCoordinates = XYCoordinates => {
-  const h = 0.5
+  const h = 20
   const x = XYCoordinates[0] * Math.PI / 180 //долгота в радианах
   const y = XYCoordinates[1] * Math.PI / 180 //широта в радианах
   const earthEquatorRadius = 6378.137 //экваториальный радиус
@@ -35,10 +35,10 @@ export const localToEciCoordinates = local => {
   return eci
 }
 
-function degToRad(deg) {
+export function degToRad(deg) {
   return deg * Math.PI / 180
 }
 
-function radToDeg(rad) {
+export function radToDeg(rad) {
   return rad * 180 / Math.PI
 }
