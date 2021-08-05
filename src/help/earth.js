@@ -1,6 +1,6 @@
 // Planet Proto
 import * as THREE from "three";
-import earthMap from "../assets/img/earth/8081_earthmap10k.jpg";
+import earthMap from "../assets/img/earth/8081_earthmap4k.jpg";
 import earthBump from "../assets/img/earth/8081_earthbump10k.jpg";
 import earthSpec1k from "../assets/img/earth/8081_earthspec10k.jpg";
 import earthCloudMap from "../assets/img/earth/earthcloudmap.jpg";
@@ -15,7 +15,7 @@ let planetProto = {
   material: function (options) {
     let material = new THREE.MeshPhongMaterial();
     if (options) {
-      for (var property in options) {
+      for (let property in options) {
         material[property] = options[property];
       }
     }

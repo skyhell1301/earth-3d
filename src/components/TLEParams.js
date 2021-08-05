@@ -4,6 +4,7 @@ import './TLEParams.css'
 function TLEParams({tle}) {
   return(
     <div className='tle-params-container'>
+      <div className="tle-params__title">TLE</div>
       <div className="tle-params__table">
         <div className="tle-params__table-column">
           <div className="tle-params__table-item">КА</div>

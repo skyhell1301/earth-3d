@@ -59,7 +59,6 @@ export async function createSpacecraft(tle, stl, date) {
       this.tle = TLE.parse(tle)
       this.satrec = getSatrec(tle)
       this.updateOrbit()
-      console.log(this.date)
       this.move(this.date)
     },
     showOrbit: function () {

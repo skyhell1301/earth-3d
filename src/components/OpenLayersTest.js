@@ -1,14 +1,11 @@
 import React, {useEffect, useRef, useState} from "react";
 import * as THREE from "three";
 import './OpenLayersTest.css'
-// import Map from 'ol/Map';
-// import View from 'ol/View';
 import * as layer from 'ol/layer';
 import * as source from 'ol/source'
 // import * as ol from 'ol'
 // import * as geom from 'ol/geom'
 import * as olProj from 'ol/proj';
-// import {toStringXY} from 'ol/coordinate';
 // import Feature from 'ol/Feature';
 // import Circle from 'ol/geom/Circle';
 import Map from 'ol/Map';
@@ -19,10 +16,6 @@ import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import starField from "../assets/img/starfield.png";
 import getEarth from "../help/earth";
 import {getXYZCoordinates} from "../help/coordinatesCalculate";
-// import satelliteMtl from '../assets/models/satellite_obj.mtl'
-// import satelliteMtl from '../assets/models/smotr/smotr.mtl'
-// import satelliteObj from '../assets/models/satellite_obj.obj'
-// import satelliteObj from '../assets/models/smotr/smotr.obj'
 import satelliteStl from '../assets/models/smotr/smotr_1.stl'
 
 import {createSpacecraft} from "../help/spacecraft";
@@ -35,6 +28,8 @@ function OpenLayersTest() {
 
   const map2dRef = useRef(null);
   const map3dRef = useRef(null);
+  const container3D = useRef(null);
+  const container2D = useRef(null);
   const [TleParams, setTleParams] = useState(null);
 
   useEffect(() => {
@@ -176,6 +171,7 @@ function OpenLayersTest() {
     let Sun = createSun(date)
     scene.add(Sun)
     scene.add(Sun.point)
+    scene.add(Sun.terminator)
 
     //---------Рендер---------------------
     let fps = 30
@@ -183,6 +179,7 @@ function OpenLayersTest() {
     let frameCount = eachNthFrame
 
     requestAnimationFrame(frame);
+
     function frame() {
       if (frameCount === eachNthFrame) {
         frameCount = 0
@@ -191,6 +188,7 @@ function OpenLayersTest() {
       frameCount++
       requestAnimationFrame(frame)
     }
+
     function render() {
       // requestAnimationFrame(render)
 
@@ -239,6 +237,15 @@ function OpenLayersTest() {
       view: view3d
     })
 
+    // let vector = new layer.Vector()
+    // console.log(vector)
+    // let feature = new Feature({
+    //   geometry: new geom.Point([-71, 42]),
+    //   labelPoint: new geom.Point([2,2]),
+    //   name: 'My Polygon'
+    // })
+    // vector.addFeature(feature)
+    // map2d.addLayer(vector)
 
     map3d.on("rendercomplete", function () {
       let mapCanvas = document.createElement("canvas");
@@ -495,12 +502,12 @@ function OpenLayersTest() {
   }, [])
   return (
     <div id="container" className='container'>
-      <TLEParams tle={TleParams}/>
-      <div>
+      <div ref={container3D}>
+        <TLEParams tle={TleParams}/>
         <div ref={map3dRef} className='map3d' id='map3d'/>
         <input id="loadTLE" type="file" style={{visibility: 'hidden'}}/>
       </div>
-      <div>
+      <div ref={container2D}>
         <div ref={map2dRef} className='map2d' id='map2d'/>
       </div>
     </div>

@@ -8,7 +8,11 @@
     background: black;
     height: 40%;
 }
-
+.tle-params__title {
+    text-align: center;
+    padding: 5px;
+    box-shadow: 0 0 4px .5px white;
+}
 .tle-params__table {
     display: flex;
     grid-template-columns: 50% 50%;
@@ -22,7 +26,6 @@
 }
 
 .tle-params__table-item {
-    /*border: 1px solid white;*/
     box-shadow: 0 0 4px .5px white;
     padding: 5px;
     overflow-wrap: break-word;
