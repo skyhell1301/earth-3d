@@ -22,3 +22,10 @@ export function createAxes() {
 
   return axisGroup
 }
+
+export function  createGrid() {
+  const gridSize = 5;
+  const gridDivisions = 20;
+
+  return new THREE.GridHelper(gridSize, gridDivisions);
+}

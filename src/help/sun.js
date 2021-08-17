@@ -75,7 +75,7 @@ export function getTerminatorArray({longitude, latitude}) {
  * @return {THREE.DirectionalLight} Возвращает объет класса THREE.DirectionalLight
  */
 export function createSun(date) {
-  let Sun = new THREE.DirectionalLight(0xffffff, 0.5)
+  let Sun = new THREE.DirectionalLight(0xFEFFCC, 0.4)
   Sun.point = new THREE.Mesh(new THREE.SphereGeometry(0.02), new THREE.MeshBasicMaterial({color: 'yellow'}))
   Sun.geoCoordinate = {}
   const lineMaterial = new THREE.LineBasicMaterial({

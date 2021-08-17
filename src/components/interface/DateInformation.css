@@ -1,0 +1,34 @@
+.date-container {
+    position: absolute;
+    top: 0;
+    left: 40%;
+    color: white;
+    font-size: 18px;
+    margin: 10px;
+    background: black;
+    box-shadow: 0 0 3px .5px white;
+    border-radius: 5px;
+    padding: 7px;
+    display: flex;
+    flex-wrap: wrap;
+    user-select: none;
+    align-items: center;
+    justify-content: space-between;
+
+}
+.date-input {
+    font-size: 17px;
+    text-align: right;
+    background-color:black;
+    color: white;
+    width: 60%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+    background-color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
