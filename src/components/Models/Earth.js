@@ -1,8 +1,6 @@
 import React, {useEffect, useState} from "react"
 import getEarth from "../../help/earth";
 import {useFrame, useThree} from "@react-three/fiber"
-// import * as layer from 'ol/layer'
-// import * as source from 'ol/source'
 import Map from 'ol/Map'
 import View from 'ol/View'
 import * as THREE from "three"
@@ -11,7 +9,7 @@ import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import GeoJSON from 'ol/format/GeoJSON'
 import geojson from '../../assets/JSON/countries.json'
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {setCenter} from "../../store/reducers/cameraPositionReducer";
 
 function Earth() {
@@ -20,6 +18,7 @@ function Earth() {
   const [earth] = useState(getEarth(camera))
   const [map, setMap] = useState(null)
 
+  const is3D = useSelector(state=> state.appState.is3D)
   const dispatch = useDispatch()
 
   function getGlobe() {
@@ -88,7 +87,6 @@ function Earth() {
     //
     map3D.once('rendercomplete', function () {
       let mapCanvas = document.createElement('canvas');
-      // let size = map.getSize();
       mapCanvas.width = 8000;
       mapCanvas.height = 4000;
       let mapContext = mapCanvas.getContext('2d');
@@ -127,21 +125,24 @@ function Earth() {
   }, [])
 
   useFrame(() => {
-    if (map && globe) {
-      const currentWidth = 8000
-      let ray = new THREE.Raycaster()
-      ray.setFromCamera({x: 0, y: 0}, camera)
-      let intersects = ray.intersectObject(globe)
-      let x = map.getCoordinateFromPixel([
-        intersects[0].uv.x * currentWidth,
-        (intersects[0].uv.y * currentWidth) / 2
-      ])[0];
+    if (is3D) {
+      if (map && globe) {
+        const currentWidth = 8000
+        let ray = new THREE.Raycaster()
+        ray.setFromCamera({x: 0, y: 0}, camera)
+        let intersects = ray.intersectObject(globe)
 
-      let y = -map.getCoordinateFromPixel([
-        intersects[0].uv.x * currentWidth,
-        (intersects[0].uv.y * currentWidth) / 2
-      ])[1];
-      dispatch(setCenter([x, y]))
+        let x = map.getCoordinateFromPixel([
+          intersects[0]?.uv.x * currentWidth,
+          (intersects[0]?.uv.y * currentWidth) / 2
+        ])[0];
+
+        let y = -map.getCoordinateFromPixel([
+          intersects[0]?.uv.x * currentWidth,
+          (intersects[0]?.uv.y * currentWidth) / 2
+        ])[1];
+        dispatch(setCenter([x, y]))
+      }
     }
   })
 

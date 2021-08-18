@@ -22,6 +22,7 @@ export async function createSpacecraft(tle, stl, date) {
 
   let spacecraft = {
     tle: TLE.parse(tle),
+    tleString: tle,
     date: date,
     satrec: satrec,
     orbit: createOrbit(satrec, date, TLE.parse(tle).motion),

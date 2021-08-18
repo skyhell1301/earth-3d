@@ -66,6 +66,7 @@ export function getTerminatorArray({longitude, latitude}) {
     ecf.z = getNormalHeight(ecf.z)
     array.push(new THREE.Vector3(ecf.x, ecf.y, ecf.z))
   }
+  array.push(array[0])
   return array
 }
 

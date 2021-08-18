@@ -4,7 +4,7 @@ export const cameraPositionSlice = createSlice({
   name: 'camPosition',
   initialState: {
     zoom: 450,
-    center: [0, 0]
+    center: [0, 0],
   },
   reducers: {
     setZoom: (state, action) => {
@@ -12,7 +12,7 @@ export const cameraPositionSlice = createSlice({
     },
     setCenter: (state, action) => {
       state.center = action.payload
-    }
+    },
   }
 })
 

@@ -1,7 +1,7 @@
 .date-container {
     position: absolute;
     top: 0;
-    left: 40%;
+    left: 37%;
     color: white;
     font-size: 18px;
     margin: 10px;
@@ -10,12 +10,15 @@
     border-radius: 5px;
     padding: 7px;
     display: flex;
-    flex-wrap: wrap;
     user-select: none;
     align-items: center;
-    justify-content: space-between;
-
+    justify-content: center;
+    z-index: 10;
 }
+.date-information {
+    white-space: nowrap;
+}
+
 .date-input {
     font-size: 17px;
     text-align: right;

@@ -1,9 +1,12 @@
 export const getXYZCoordinates = XYCoordinates => {
+
+  const earthEquatorRadius = 6378.137 //экваториальный радиус
+  const earthPolarRadius = 6356.863 //полярный радиус
+
   const h = 20
   const x = XYCoordinates[0] * Math.PI / 180 //долгота в радианах
   const y = XYCoordinates[1] * Math.PI / 180 //широта в радианах
-  const earthEquatorRadius = 6378.137 //экваториальный радиус
-  const earthPolarRadius = 6356.863 //полярный радиус
+
   const earthEquatorRadiusN = 1 //экваториальный радиус нормированный
   const f = (earthEquatorRadius - earthPolarRadius) / earthEquatorRadius
   const e2 = f * (2 - f) //первый эксцентриситет

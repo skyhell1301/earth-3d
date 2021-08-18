@@ -23,7 +23,7 @@ import {createSun} from "../help/sun";
 import * as dat from "dat.gui";
 import TLEParams from "./interface/TLEParams";
 import {createAxes, createGrid} from "../help/sceneManager";
-import DateInformation from "./interface/DateInformation";
+import DateInformation from "./interface/DateInformation/DateInformation";
 
 function EarthJS() {
 

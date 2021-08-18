@@ -1,9 +1,13 @@
 import React, {useState} from "react";
 import './TLEParams.css'
+import {useSelector} from "react-redux";
+import TLE from "tle";
 
-function TLEParams({tle}) {
+function TLEParams() {
 
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(true)
+  const tleString = useSelector(state => state.spacecraft.tle)
+  const tle = TLE.parse(tleString)
 
   function getTLEInterface() {
     if (isOpen) {
