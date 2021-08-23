@@ -1,5 +1,5 @@
 import * as satellite from "satellite.js";
-import {eciToLocalCoordinates, getNormalHeight} from "./coordinatesCalculate";
+import {eciToLocalCoordinates, getNormalHeight, radToDeg} from "./coordinatesCalculate";
 import * as THREE from "three";
 import TLE from "tle";
 import {STLLoader} from "three/examples/jsm/loaders/STLLoader";
@@ -26,12 +26,19 @@ export async function createSpacecraft(tle, stl, date) {
     date: date,
     satrec: satrec,
     orbit: createOrbit(satrec, date, TLE.parse(tle).motion),
+    orbitPointsArray: [],
     spacecraftPoint: createSpacecraftPoint(getSpacecraftPoint(eciToLocalCoordinates(positionEci), date)),
+    lonAndLat: {},
     isOrbitShow: false,
     move: function move(date) {
       this.date = date
       positionAndVelocity = satellite.propagate(this.satrec, this.date)
       let ecf = satellite.eciToEcf(positionAndVelocity.position, satellite.gstime(this.date))
+      let geodetic = satellite.eciToGeodetic(positionAndVelocity.position, satellite.gstime(this.date))
+      let lonAndLat = {}
+      lonAndLat.x = radToDeg(geodetic.longitude)
+      lonAndLat.y = radToDeg(geodetic.latitude)
+      this.lonAndLat = lonAndLat
       const localCoordinate = eciToLocalCoordinates(ecf)
       spacecraft.position.set(getNormalHeight(localCoordinate.x), getNormalHeight(localCoordinate.y), getNormalHeight(localCoordinate.z))
 
@@ -42,18 +49,26 @@ export async function createSpacecraft(tle, stl, date) {
       spacecraft.updateMatrixWorld()
     },
     updateOrbit: function () {
-      let minuteForTurn =  1440//Math.round(1440 / motion)
-      let positionAndVelocity = satellite.propagate(this.satrec, this.date)
-      let positionEci = positionAndVelocity.position
-      let orbitPointsArray = []
+      let minuteForTurn = 1440 * 60 / 4//Math.round(1440 / motion)
+      let positionAndVelocity
+      let orbitPointsMeshArray = []
+      let orbitPointsLonLatArray = []
       for (let i = 0; i <= minuteForTurn + 1; i = i + 1) {
-        positionAndVelocity = satellite.propagate(this.satrec, addMinutes(this.date, i))
-        positionEci = positionAndVelocity.position
-        let positionEcf = satellite.eciToEcf(positionEci, satellite.gstime(addMinutes(this.date, i)))
-        positionEcf = eciToLocalCoordinates(positionEcf)
-        orbitPointsArray.push(new THREE.Vector3(getNormalHeight(positionEcf.x), getNormalHeight(positionEcf.y), getNormalHeight(positionEcf.z)))
+        let newDate = addSeconds(this.date, i)
+        positionAndVelocity = satellite.propagate(this.satrec, newDate)
+        let ecf = satellite.eciToEcf(positionAndVelocity.position, satellite.gstime(newDate))
+        let geodetic = satellite.eciToGeodetic(positionAndVelocity.position, satellite.gstime(newDate))
+
+        let lonAndLat = [0, 0]
+        lonAndLat[0] = radToDeg(geodetic.longitude)
+        lonAndLat[1] = radToDeg(geodetic.latitude)
+
+        const localCoordinate = eciToLocalCoordinates(ecf)
+        orbitPointsMeshArray.push(new THREE.Vector3(getNormalHeight(localCoordinate.x), getNormalHeight(localCoordinate.y), getNormalHeight(localCoordinate.z)))
+        orbitPointsLonLatArray.push(lonAndLat)
       }
-      const lineGeometry = new THREE.BufferGeometry().setFromPoints(orbitPointsArray)
+      this.orbitPointsArray = orbitPointsLonLatArray
+      const lineGeometry = new THREE.BufferGeometry().setFromPoints(orbitPointsMeshArray)
       this.orbit.geometry.copy(lineGeometry)
     },
     updateTLE(tle) {
@@ -77,40 +92,30 @@ export async function createSpacecraft(tle, stl, date) {
   spacecraft.__proto__ = model
   spacecraft.hideOrbit()
   spacecraft.move(spacecraft.date)
+  spacecraft.updateOrbit()
   return spacecraft
 }
+
 /**
  * Создание орбиты спутника
- * @param {[satellite.twoline2satrec]} satrec Инициализированая спутниковая запись
- * @param {[Date]} date Начальное время расчета
- * @param {[Number]} motion Длительность расчета (мин)
  * @return {[Line]} Возвращает объект орбиты типа THREE.Line
  */
-function createOrbit(satrec, date, motion) {
-  let minuteForTurn =  1440//Math.round(1440 / motion)
-  let positionAndVelocity = satellite.propagate(satrec, date)
-  let positionEci = positionAndVelocity.position
-  let orbitPointsArray = []
-  for (let i = 0; i <= minuteForTurn + 1; i = i + 1) {
-    positionAndVelocity = satellite.propagate(satrec, addMinutes(date, i))
-    positionEci = positionAndVelocity.position
-    let positionEcf = satellite.eciToEcf(positionEci, satellite.gstime(addMinutes(date, i)))
-    positionEcf = eciToLocalCoordinates(positionEcf)
-    orbitPointsArray.push(new THREE.Vector3(getNormalHeight(positionEcf.x), getNormalHeight(positionEcf.y), getNormalHeight(positionEcf.z)))
-  }
+function createOrbit() {
   const lineMaterial = new THREE.LineBasicMaterial({
     color: 'red'
   });
-  const lineGeometry = new THREE.BufferGeometry().setFromPoints(orbitPointsArray)
+  // const lineGeometry = new THREE.BufferGeometry().setFromPoints(orbitPointsArray)
+  const lineGeometry = new THREE.BufferGeometry()
 
   return new THREE.Line(lineGeometry, lineMaterial)
 }
+
 /**
  * Получение инициализированой спутниковой записи
  * @param {[tle]} tle TLE спутника
  * @return {[satellite.twoline2satrec]} Возвращает инициализированую спутниковую запись
  */
-function getSatrec (tle) {
+function getSatrec(tle) {
   let tleArray = tle.split('\n')
   let tleLine1, tleLine2
 
@@ -137,10 +142,11 @@ function createSpacecraftPoint(coordinates) {
   point.position.set(coordinates.x, coordinates.y, coordinates.z)
   return point
 }
+
 function getSpacecraftPoint(spacecraftCoordinates, date) {
   let spacecraftLonLatHeight = satellite.eciToGeodetic(spacecraftCoordinates, satellite.gstime(date))
   spacecraftLonLatHeight.height = 0
-  let eci = ecfToEci(satellite.geodeticToEcf(spacecraftLonLatHeight),satellite.gstime(date))
+  let eci = ecfToEci(satellite.geodeticToEcf(spacecraftLonLatHeight), satellite.gstime(date))
   let pointCoordinates = {}
   pointCoordinates.x = getNormalHeight(eci.x)
   pointCoordinates.y = getNormalHeight(eci.y)
@@ -155,8 +161,12 @@ async function loadModel(stl) {
   })
 }
 
-function addMinutes(date, minutes) {
-  return new Date(date.getTime() + minutes * 60000);
+// function addMinutes(date, minutes) {
+//   return new Date(date.getTime() + minutes * 60000);
+// }
+
+function addSeconds(date, sec) {
+  return new Date(date.getTime() + sec * 1000);
 }
 
 export function ecfToEci(ecf, gmst) {
@@ -169,5 +179,5 @@ export function ecfToEci(ecf, gmst) {
   const X = (ecf.x * Math.cos(gmst)) - (ecf.y * Math.sin(gmst));
   const Y = (ecf.x * (Math.sin(gmst))) + (ecf.y * Math.cos(gmst));
   const Z = ecf.z;
-  return { x: X, y: Y, z: Z };
+  return {x: X, y: Y, z: Z};
 }

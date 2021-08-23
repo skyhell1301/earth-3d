@@ -5,24 +5,21 @@ import {useDispatch, useSelector} from "react-redux";
 import Map2D from "./View/Map2D";
 import {setSceneState} from "../store/reducers/appStateReducer";
 import DateInformation from "./interface/DateInformation/DateInformation";
-import TLEParams from "./interface/TLEParams";
-
+import TLEParams from "./interface/TLEInformation/TLEParams";
 
 const App = () => {
   const zoom = useSelector(state => state.camPosition.zoom)
-  // const currentDate = useSelector(state => state.appState.currentDate)
   const is3D = useSelector(state => state.appState.is3D)
   const dispatch = useDispatch()
 
-  // console.log(currentDate)
-
   useEffect(() => {
-    if(zoom > 1200) {
+    if (zoom > 1200) {
       dispatch(setSceneState(false))
     } else {
       dispatch(setSceneState(true))
     }
-  })
+    // eslint-disable-next-line
+  }, [zoom])
 
   function isHide3D() {
     return !is3D ? ' hide-layer' : ''

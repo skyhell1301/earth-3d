@@ -13,17 +13,17 @@ import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import XYZ from 'ol/source/XYZ';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
-import starField from "../assets/img/starfield.png";
-import getEarth from "../help/earth";
-import {getXYZCoordinates} from "../help/coordinatesCalculate";
-import satelliteStl from '../assets/models/smotr/smotr_1.stl'
+import starField from "../../assets/img/starfield.png";
+import getEarth from "../earth";
+import {getXYZCoordinates} from "../coordinatesCalculate";
+import satelliteStl from '../../assets/models/smotr/smotr_1.stl'
 
-import {createSpacecraft} from "../help/spacecraft";
-import {createSun} from "../help/sun";
+import {createSpacecraft} from "../spacecraft";
+import {createSun} from "../sun";
 import * as dat from "dat.gui";
-import TLEParams from "./interface/TLEParams";
-import {createAxes, createGrid} from "../help/sceneManager";
-import DateInformation from "./interface/DateInformation/DateInformation";
+import TLEParams from "../../components/interface/TLEInformation/TLEParams";
+import {createAxes, createGrid} from "../sceneManager";
+import DateInformation from "../../components/interface/DateInformation/DateInformation";
 
 function EarthJS() {
 

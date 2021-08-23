@@ -1,10 +1,10 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 export const appStateSlice = createSlice({
   name: 'appState',
   initialState: {
     is3D: true,
-    currentDate: getUTCDate(new Date())
+    localDate: new Date().toISOString(),
   },
   reducers: {
     /**
@@ -18,32 +18,25 @@ export const appStateSlice = createSlice({
      * @param state
      * @param action date.toISOString().subscribe(0, 19)
      */
-    setCurrentDate: (state, action) => {
-      state.currentDate = action.payload
+    setLocalDate: (state, action: PayloadAction<Date>) => {
+      state.localDate = action.payload.toISOString()
     },
     addMinute(state) {
-      let cur = new Date(state.currentDate)
-      let newDate = new Date(cur.getTime() + 1)
-      // console.log(newDate.toLocaleString())
-      // console.log(new Date(newDate.toLocaleString()))
-      state.currentDate = getUTCDate(newDate)
-    }
+      let date = new Date(state.localDate)
+      date.setMinutes(date.getMinutes() + 1)
+      state.localDate = date.toISOString()
+    },
+    addSecond(state) {
+      let date = new Date(state.localDate)
+      date.setSeconds(date.getSeconds() + 1)
+      state.localDate = date.toISOString()
+    },
   }
 })
 
-function getUTCDate(date) {
-  const year = date.getUTCFullYear()
-  let month = addZeroToDate(date.getUTCMonth() + 1)
-  let day = addZeroToDate(date.getUTCDate())
-  let hour = addZeroToDate(date.getUTCHours() )
-  const minute = addZeroToDate(date.getUTCMinutes() )
-  const sec = addZeroToDate(date.getUTCSeconds())
-  return `${year}-${month}-${day}T${hour}:${minute}:${sec}`
-}
 
-function addZeroToDate(number) {
-  return number < 10 ? '0' + number : number
-}
 
-export const {setSceneState, setCurrentDate,addMinute} = appStateSlice.actions
+
+
+export const {setSceneState, setLocalDate,addMinute, addSecond} = appStateSlice.actions
 export default appStateSlice.reducer

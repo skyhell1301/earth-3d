@@ -1,0 +1,16 @@
+.loading__html {
+
+}
+.loading__background {
+    background-color: black;
+    height: 100vh;
+    width: 100vw;
+    display: grid;
+    justify-items: center;
+    align-items: center;
+}
+.loading__text {
+    font-family: Sans-Serif;
+    font-size: 30px;
+    color: white;
+}

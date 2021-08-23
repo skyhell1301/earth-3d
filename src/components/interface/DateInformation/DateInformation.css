@@ -1,5 +1,6 @@
 .date-container {
     position: absolute;
+    width: 510px;
     top: 0;
     left: 37%;
     color: white;
@@ -9,7 +10,8 @@
     box-shadow: 0 0 3px .5px white;
     border-radius: 5px;
     padding: 7px;
-    display: flex;
+    display: grid;
+    grid-template-columns: 45% 45% 10%;
     user-select: none;
     align-items: center;
     justify-content: center;
@@ -24,7 +26,7 @@
     text-align: right;
     background-color:black;
     color: white;
-    width: 60%;
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;

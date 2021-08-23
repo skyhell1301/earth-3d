@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react"
 import './PlayButton.css'
 import {useDispatch} from "react-redux";
-import {addMinute} from "../../../store/reducers/appStateReducer";
+import {addSecond} from "../../../store/reducers/appStateReducer";
 
 function PlayButton() {
   const [play, setPlay] = useState(false)
@@ -17,12 +17,13 @@ function PlayButton() {
     if(play) {
       setTimer(
         setInterval(()=>{
-          dispatch(addMinute())
-        }, 60)
+          dispatch(addSecond())
+        }, 17)
       )
     } else {
       clearInterval(timer)
     }
+    // eslint-disable-next-line
   }, [play])
 
   function getTemplate() {

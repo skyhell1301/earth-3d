@@ -21,6 +21,14 @@
     width: 100%;
     height: 100%;
 }
+.tle-params__open-tle:hover {
+    box-shadow: 0 0 4px 1px white;
+}
+
+.tle-params__open-tle:active {
+    box-shadow: inset 0 0 4px 1px white;
+}
+
 .tle-params__table {
     display: flex;
     flex-direction: column;

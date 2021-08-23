@@ -55,7 +55,8 @@ export function getSunCoordinates(date) {
 export function getTerminatorArray({longitude, latitude}) {
   let array = []
   let lon = -180
-  for (lon; lon < 180; lon++) {
+  // Для четкого терминатора необходимо расчитывать точки с шагом 0.001
+  for (lon; lon < 180; lon+=1) {
     let ecf = satellite.geodeticToEcf({
       longitude: degToRad(lon),
       latitude: degToRad((180 / Math.PI) * Math.atan(-(Math.cos(degToRad(lon) - degToRad(longitude)) / Math.tan(degToRad(latitude))))),

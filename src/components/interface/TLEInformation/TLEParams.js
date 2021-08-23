@@ -2,10 +2,11 @@ import React, {useState} from "react";
 import './TLEParams.css'
 import {useSelector} from "react-redux";
 import TLE from "tle";
+import LoadingTLEButton from "./LoadingTLEButton";
 
 function TLEParams() {
 
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(false)
   const tleString = useSelector(state => state.spacecraft.tle)
   const tle = TLE.parse(tleString)
 
@@ -115,6 +116,7 @@ function TLEParams() {
         <button onClick={() => setIsOpen(!isOpen)} className="tle-params__open-tle">TLE</button>
       </div>
       {getTLEInterface()}
+      <LoadingTLEButton/>
     </div>
   )
 }

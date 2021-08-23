@@ -6,6 +6,7 @@ import {TextureLoader} from 'three'
 
 function Galaxy() {
   const material = useLoader(TextureLoader, starField)
+
   return(
     <mesh>
       <boxGeometry args={[15,15,15]} name={'galaxy'} position={[0,0,0]}/>

@@ -17,7 +17,7 @@ function CameraControl() {
 
 
   const cameraParams = {
-    position: [3, 0, 0],
+    position: [20, 0, 0],
     zoom: camZoom
   }
 
