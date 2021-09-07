@@ -1,8 +1,9 @@
 import React, {useState} from "react";
 import './TLEParams.css'
 import {useSelector} from "react-redux";
+import upArrow from '../../../assets/img/svg/up-arrow.svg'
 import TLE from "tle";
-import LoadingTLEButton from "./LoadingTLEButton";
+import LoadingTLEButton from "./LoadingTLEButton"
 
 function TLEParams() {
 
@@ -113,7 +114,10 @@ function TLEParams() {
   return (
     <div className='tle-params-container'>
       <div className="tle-params__title">
-        <button onClick={() => setIsOpen(!isOpen)} className="tle-params__open-tle">TLE</button>
+        <div onClick={() => setIsOpen(!isOpen)} className="tle-params__open-tle">
+          <div>TLE</div>
+          <img alt='' className='tle-params__open-tle-button' src={upArrow} style={!isOpen ? {transform: 'rotateX(180deg)'} : null}/>
+        </div>
       </div>
       {getTLEInterface()}
       <LoadingTLEButton/>

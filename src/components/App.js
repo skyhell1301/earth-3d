@@ -1,25 +1,15 @@
-import React, {useEffect} from "react";
+import React from "react";
 import './App.css';
 import Scene3D from "./View/Scene3D";
-import {useDispatch, useSelector} from "react-redux";
+import {useSelector} from "react-redux";
 import Map2D from "./View/Map2D";
-import {setSceneState} from "../store/reducers/appStateReducer";
 import DateInformation from "./interface/DateInformation/DateInformation";
 import TLEParams from "./interface/TLEInformation/TLEParams";
+import ControlPanel from "./interface/ContorlPanel/ControlPanel";
+import StateViewButton from "./interface/StateViewButton/StateViewButton";
 
 const App = () => {
-  const zoom = useSelector(state => state.camPosition.zoom)
   const is3D = useSelector(state => state.appState.is3D)
-  const dispatch = useDispatch()
-
-  useEffect(() => {
-    if (zoom > 1200) {
-      dispatch(setSceneState(false))
-    } else {
-      dispatch(setSceneState(true))
-    }
-    // eslint-disable-next-line
-  }, [zoom])
 
   function isHide3D() {
     return !is3D ? ' hide-layer' : ''
@@ -31,8 +21,10 @@ const App = () => {
 
   return (
     <div className='app'>
+      <StateViewButton/>
       <DateInformation/>
       <TLEParams/>
+      <ControlPanel/>
       <Scene3D className={'scene' + isHide3D()}/>
       <Map2D className={'map2d' + isHide2D()}/>
       <div id='map3D' className='map3d'/>

@@ -1,11 +1,10 @@
 import * as satellite from "satellite.js";
-import {eciToLocalCoordinates, getNormalHeight, radToDeg} from "./coordinatesCalculate";
+import {WGSToTHREECoordinates, getNormalHeight, radToDeg} from "./coordinatesCalculate";
 import * as THREE from "three";
 import TLE from "tle";
 import {STLLoader} from "three/examples/jsm/loaders/STLLoader";
 
 export async function createSpacecraft(tle, stl, date) {
-
   let model = await loadModel(stl)
   model = new THREE.Mesh(model, new THREE.MeshBasicMaterial())
 
@@ -25,28 +24,95 @@ export async function createSpacecraft(tle, stl, date) {
     tleString: tle,
     date: date,
     satrec: satrec,
+    height: 0, //км
     orbit: createOrbit(satrec, date, TLE.parse(tle).motion),
     orbitPointsArray: [],
-    spacecraftPoint: createSpacecraftPoint(getSpacecraftPoint(eciToLocalCoordinates(positionEci), date)),
+    spacecraftPoint: createSpacecraftPoint(getSpacecraftPointCoordinates(WGSToTHREECoordinates(positionEci), date)),
     lonAndLat: {},
+    eci_coord: {},
+    ecf_coord: {},
+    motionVector: {},
+    direction: new THREE.Vector3(),
+    scannerProjection: {
+      topRight: new THREE.Vector3(),
+      topLeft: new THREE.Vector3(),
+      topMid: new THREE.Vector3(),
+      downLeft: new THREE.Vector3(),
+      downRight: new THREE.Vector3(),
+      downMid: new THREE.Vector3(),
+    },
     isOrbitShow: false,
     move: function move(date) {
       this.date = date
       positionAndVelocity = satellite.propagate(this.satrec, this.date)
-      let ecf = satellite.eciToEcf(positionAndVelocity.position, satellite.gstime(this.date))
-      let geodetic = satellite.eciToGeodetic(positionAndVelocity.position, satellite.gstime(this.date))
+      this.eci_coord = positionAndVelocity.position
+      this.ecf_coord = satellite.eciToEcf(positionAndVelocity.position, satellite.gstime(this.date))
+
+      let geodetic = satellite.eciToGeodetic(this.eci_coord, satellite.gstime(this.date))
       let lonAndLat = {}
       lonAndLat.x = radToDeg(geodetic.longitude)
       lonAndLat.y = radToDeg(geodetic.latitude)
+      this.height = geodetic.height
       this.lonAndLat = lonAndLat
-      const localCoordinate = eciToLocalCoordinates(ecf)
-      spacecraft.position.set(getNormalHeight(localCoordinate.x), getNormalHeight(localCoordinate.y), getNormalHeight(localCoordinate.z))
 
-      this.updateSpacecraftPoint(getSpacecraftPoint(localCoordinate, this.date))
+      const threeCoordinate = WGSToTHREECoordinates(this.ecf_coord)
+      this.position.set(getNormalHeight(threeCoordinate.x), getNormalHeight(threeCoordinate.y), getNormalHeight(threeCoordinate.z))
+
+      this.updateMotionVector()
+
+      this.updateSpacecraftPoint(getSpacecraftPointCoordinates(threeCoordinate, this.date))
+      spacecraft.up.set(this.motionVector.ecfNormal.x, this.motionVector.ecfNormal.y, this.motionVector.ecfNormal.z)
+
       // this.updateOrbit()
-      spacecraft.lookAt(0, 0, 0)
-      spacecraft.rotateY(satellite.degreesToRadians(180))
-      spacecraft.updateMatrixWorld()
+      const quaternion = new THREE.Quaternion();
+      let matrix = new THREE.Matrix4()
+
+      matrix.lookAt(this.spacecraftPoint.position, this.position, this.up)
+      quaternion.setFromRotationMatrix(matrix)
+      this.quaternion.rotateTowards(quaternion, 5)
+
+      // this.rotateZ(satellite.degreesToRadians(45))
+
+
+      let clone = this.clone()
+
+      let Obzor_rad = 0.02359562
+      let widthEdge = Obzor_rad  / 2
+      let widthEdge_rad = satellite.degreesToRadians(45) + widthEdge
+      let heightEdge_deg = 1
+
+      //down left
+      clone.rotateY(widthEdge_rad)
+      clone.rotateX(satellite.degreesToRadians(heightEdge_deg))
+      clone.getWorldDirection(this.scannerProjection.downLeft)
+
+      //top left
+      clone.rotateX(satellite.degreesToRadians(-2 * heightEdge_deg))
+      clone.getWorldDirection(this.scannerProjection.topLeft)
+
+
+      //top mid
+      clone.rotateX(satellite.degreesToRadians(heightEdge_deg))
+      clone.rotateY(-widthEdge_rad)
+      clone.rotateX(satellite.degreesToRadians(-heightEdge_deg))
+      clone.getWorldDirection(this.scannerProjection.topMid)
+
+      //down mid
+      clone.rotateX(satellite.degreesToRadians(2 * heightEdge_deg))
+      clone.getWorldDirection(this.scannerProjection.downMid)
+
+      //down right
+      clone.rotateX(satellite.degreesToRadians(-heightEdge_deg))
+      clone.rotateY(-widthEdge_rad)
+      clone.rotateX(satellite.degreesToRadians(heightEdge_deg))
+      clone.getWorldDirection(this.scannerProjection.downRight)
+
+      //top right
+      clone.rotateX(satellite.degreesToRadians(-2 * heightEdge_deg))
+      clone.getWorldDirection(this.scannerProjection.topRight)
+
+      clone.getWorldDirection(this.direction)
+      this.updateMatrixWorld()
     },
     updateOrbit: function () {
       let minuteForTurn = 1440 * 60 / 4//Math.round(1440 / motion)
@@ -63,19 +129,36 @@ export async function createSpacecraft(tle, stl, date) {
         lonAndLat[0] = radToDeg(geodetic.longitude)
         lonAndLat[1] = radToDeg(geodetic.latitude)
 
-        const localCoordinate = eciToLocalCoordinates(ecf)
-        orbitPointsMeshArray.push(new THREE.Vector3(getNormalHeight(localCoordinate.x), getNormalHeight(localCoordinate.y), getNormalHeight(localCoordinate.z)))
+        const threeCoordinate = WGSToTHREECoordinates(ecf)
+        orbitPointsMeshArray.push(new THREE.Vector3(getNormalHeight(threeCoordinate.x), getNormalHeight(threeCoordinate.y), getNormalHeight(threeCoordinate.z)))
         orbitPointsLonLatArray.push(lonAndLat)
       }
       this.orbitPointsArray = orbitPointsLonLatArray
       const lineGeometry = new THREE.BufferGeometry().setFromPoints(orbitPointsMeshArray)
       this.orbit.geometry.copy(lineGeometry)
     },
+    updateMotionVector: function () {
+      const newDate = addMinutes(this.date, 1)
+      this.motionVector.eci = satellite.propagate(this.satrec, newDate).position
+      this.motionVector.ecf = satellite.eciToEcf(this.motionVector.eci, satellite.gstime(newDate))
+      this.motionVector.ecfThree = WGSToTHREECoordinates(this.motionVector.ecf)
+      this.motionVector.eciThree = WGSToTHREECoordinates(this.motionVector.eci)
+      this.motionVector.ecfNormal = new THREE.Vector3(
+        getNormalHeight(this.motionVector.ecfThree.x),
+        getNormalHeight(this.motionVector.ecfThree.y),
+        getNormalHeight(this.motionVector.ecfThree.z)
+      )
+      this.motionVector.eciNormal = new THREE.Vector3(
+        getNormalHeight(this.motionVector.eciThree.x),
+        getNormalHeight(this.motionVector.eciThree.y),
+        getNormalHeight(this.motionVector.eciThree.z)
+      )
+    },
     updateTLE(tle) {
       this.tle = TLE.parse(tle)
       this.satrec = getSatrec(tle)
-      this.updateOrbit()
       this.move(this.date)
+      this.updateOrbit()
     },
     showOrbit: function () {
       this.orbit.visible = true
@@ -90,6 +173,7 @@ export async function createSpacecraft(tle, stl, date) {
     }
   }
   spacecraft.__proto__ = model
+  spacecraft.matrixWorldNeedsUpdate = true
   spacecraft.hideOrbit()
   spacecraft.move(spacecraft.date)
   spacecraft.updateOrbit()
@@ -104,7 +188,6 @@ function createOrbit() {
   const lineMaterial = new THREE.LineBasicMaterial({
     color: 'red'
   });
-  // const lineGeometry = new THREE.BufferGeometry().setFromPoints(orbitPointsArray)
   const lineGeometry = new THREE.BufferGeometry()
 
   return new THREE.Line(lineGeometry, lineMaterial)
@@ -136,14 +219,20 @@ function getSatrec(tle) {
  * @return {[satellite.twoline2satrec]} Возвращает инициализированую спутниковую запись
  */
 function createSpacecraftPoint(coordinates) {
-  let pointGeometry = new THREE.SphereGeometry(0.01)
-  let pointMaterial = new THREE.MeshBasicMaterial({color: 'red'})
+  let pointGeometry = new THREE.SphereGeometry(0.008)
+  let pointMaterial = new THREE.MeshBasicMaterial({color: 'blue'})
   let point = new THREE.Mesh(pointGeometry, pointMaterial)
   point.position.set(coordinates.x, coordinates.y, coordinates.z)
   return point
 }
 
-function getSpacecraftPoint(spacecraftCoordinates, date) {
+/**
+ * Получение нормированных координат подспутниковой точки
+ * @param spacecraftCoordinates - координаты КА
+ * @param date - дата расчета
+ * @return {{Координаты}}
+ */
+function getSpacecraftPointCoordinates(spacecraftCoordinates, date) {
   let spacecraftLonLatHeight = satellite.eciToGeodetic(spacecraftCoordinates, satellite.gstime(date))
   spacecraftLonLatHeight.height = 0
   let eci = ecfToEci(satellite.geodeticToEcf(spacecraftLonLatHeight), satellite.gstime(date))
@@ -161,14 +250,20 @@ async function loadModel(stl) {
   })
 }
 
-// function addMinutes(date, minutes) {
-//   return new Date(date.getTime() + minutes * 60000);
-// }
+function addMinutes(date, minutes) {
+  return new Date(date.getTime() + minutes * 60000);
+}
 
 function addSeconds(date, sec) {
   return new Date(date.getTime() + sec * 1000);
 }
 
+/**
+ * Перевод координат из ECF в ECI
+ * @param ecf - координаты
+ * @param gmst
+ * @return {{x: number, y: number, z}}
+ */
 export function ecfToEci(ecf, gmst) {
   // ccar.colorado.edu/ASEN5070/handouts/coordsys.doc
   //

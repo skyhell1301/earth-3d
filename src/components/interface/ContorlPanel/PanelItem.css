@@ -1,0 +1,37 @@
+.panel-item {
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 3px .5px var(--text-color);
+    background-color: var(--main-color);
+}
+
+.panel-item__title {
+    text-align: center;
+    display: grid;
+    grid-template-columns: 93% 5% 2%;
+    user-select: none;
+    background-color: var(--select-color);
+    box-shadow: 0 0 4px .5px var(--main-color);
+    padding: 5px;
+    cursor: pointer;
+    z-index: 11;
+}
+
+.panel-item__title img {
+    transition: all 0.3s;
+}
+
+.panel-item__container-enter {
+    opacity: 0;
+}
+.panel-item__container-active {
+    opacity: 1;
+    transition: all 300ms;
+}
+.panel-item__container-exit {
+    opacity: 1;
+}
+.panel-item__container-exit-active {
+    opacity: 0;
+    transition: all 300ms;
+}

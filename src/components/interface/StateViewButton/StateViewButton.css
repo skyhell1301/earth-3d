@@ -1,0 +1,9 @@
+.view-button {
+    position: fixed;
+    right: 15.5%;
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    border-radius: 5px;
+}

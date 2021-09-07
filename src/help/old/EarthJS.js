@@ -35,10 +35,6 @@ function EarthJS() {
 
   const [currentDate, setCurrentDate] = useState(new Date());
 
-  useCustomEventListener('change-date', newDate => {
-    console.log(newDate)
-  })
-
   useEffect(() => {
     run()
     //eslint-disable-next-line

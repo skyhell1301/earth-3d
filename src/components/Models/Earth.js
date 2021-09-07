@@ -25,7 +25,7 @@ function Earth() {
     if (earth && globe) {
       return (
         <>
-          <primitive object={earth}/>
+          <primitive object={earth} name={'Earth'}/>
           <primitive object={globe}/>
         </>
       )

@@ -7,8 +7,8 @@ import earthBump from "../assets/img/earth/8081_earthbump10k.jpg";
 // import earthCloudMapTrans from "../assets/img/earth/earthcloudmaptrans.jpg";
 
 let planetProto = {
-  sphere: function (size) {
-    let sphere = new THREE.SphereGeometry(size, 32, 32);
+  sphere: function (size, segments) {
+    let sphere = new THREE.SphereGeometry(size, segments, segments);
 
     return sphere;
   },
@@ -86,7 +86,7 @@ let planetProto = {
 
 let createPlanet = function (options) {
   // Create the planet's Surface
-  let surfaceGeometry = planetProto.sphere(options.surface.size);
+  let surfaceGeometry = planetProto.sphere(options.surface.size, options.surface.segments);
   let surfaceMaterial = planetProto.material(options.surface.material);
   let surface = new THREE.Mesh(surfaceGeometry, surfaceMaterial);
 
@@ -107,7 +107,7 @@ let createPlanet = function (options) {
 
   // Nest the planet's Surface and Atmosphere into a planet object
   let planet = new THREE.Object3D();
-  surface.name = 'surface';
+  surface.name = 'Earth';
   // atmosphere.name = 'atmosphere';
   // atmosphericGlow.name = 'atmosphericGlow';
   planet.add(surface);
@@ -140,6 +140,7 @@ let getEarth = function (camera) {
   return createPlanet({
     surface: {
       size: 1,
+      segments: 64,
       material: {
         bumpScale: 0.05,
         specular: new THREE.Color('grey'),

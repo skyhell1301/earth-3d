@@ -1,6 +1,6 @@
 import {degToRad} from "three/src/math/MathUtils";
 import * as THREE from "three";
-import {eciToLocalCoordinates, getNormalHeight, radToDeg} from "./coordinatesCalculate";
+import {WGSToTHREECoordinates, getNormalHeight, radToDeg} from "./coordinatesCalculate";
 import * as satellite from "satellite.js";
 
 /**
@@ -78,6 +78,7 @@ export function getTerminatorArray({longitude, latitude}) {
  */
 export function createSun(date) {
   let Sun = new THREE.DirectionalLight(0xFEFFCC, 0.4)
+  Sun.castShadow = true
   Sun.point = new THREE.Mesh(new THREE.SphereGeometry(0.02), new THREE.MeshBasicMaterial({color: 'yellow'}))
   Sun.geoCoordinate = {}
   const lineMaterial = new THREE.LineBasicMaterial({
@@ -95,7 +96,7 @@ export function createSun(date) {
 
   }
   Sun.move = function (date) {
-    let coordinates = eciToLocalCoordinates(getSunCoordinates(date))
+    let coordinates = WGSToTHREECoordinates(getSunCoordinates(date))
     let geo = {height: 1000000, latitude: Math.atan2(coordinates.z, Math.sqrt(coordinates.x**2 + coordinates.y**2)), longitude: Math.atan2(coordinates.y, coordinates.x)}
     let ecf = satellite.geodeticToEcf(geo)
     this.geoCoordinate = {height: 1000000, latitude: radToDeg(geo.latitude), longitude: radToDeg(geo.longitude)}

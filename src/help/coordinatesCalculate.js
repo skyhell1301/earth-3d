@@ -23,14 +23,18 @@ export const getNormalHeight = height => {
   return height / 6378.137
 }
 
-export const eciToLocalCoordinates = eci => {
+export const normalToRealHeight = height => {
+  return height * 6378.137
+}
+
+export const WGSToTHREECoordinates = eci => {
   let local = {}
   local.x = eci.x
   local.y = eci.z
   local.z = -eci.y
   return local
 }
-export const localToEciCoordinates = local => {
+export const THREEToWGSCoordinates = local => {
   let eci = {}
   eci.x = local.x
   eci.y = -local.z

@@ -1,5 +1,7 @@
 import React, {useEffect, useState} from "react"
 import './PlayButton.css'
+import playSvg from '../../../assets/img/svg/play.svg'
+import pauseSvg from '../../../assets/img/svg/pause.svg'
 import {useDispatch} from "react-redux";
 import {addSecond} from "../../../store/reducers/appStateReducer";
 
@@ -26,14 +28,11 @@ function PlayButton() {
     // eslint-disable-next-line
   }, [play])
 
-  function getTemplate() {
-    return play ? '⏸' : '⏯'
-  }
   return(
     <button onClick={start}
             className='play-button'
     >
-      {getTemplate()}
+      <img alt='' className='play-button__img' src={play ? pauseSvg : playSvg}/>
     </button>
   )
 }

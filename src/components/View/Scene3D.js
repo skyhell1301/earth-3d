@@ -16,12 +16,14 @@ const Galaxy = React.lazy(() => import("../Models/Galaxy"))
 function Scene3D({className}) {
   const date = new Date(useSelector(state => state.appState.localDate))
   const tle = useSelector(state => state.spacecraft.tle)
+  const orbitIsView = useSelector(state => state.spacecraft.orbitIsView)
 
   return (
     <Canvas
       className={className}
       frameloop="demand"
       concurrent
+      shadows
       // orthographic
       // camera={{position:[2,0,0], left: -10000, right: 10000, top: 10000, bottom: -10000, near: 0.1, far:1000}}
     >
@@ -31,7 +33,8 @@ function Scene3D({className}) {
           <Sun date={date}/>
           <Earth/>
           <CameraControl/>
-          <Spacecraft date={date} tle={tle}/>
+          <axesHelper args={[5]}/>
+          <Spacecraft date={date} tle={tle} isOrbit={orbitIsView}/>
         </Provider>
         <hemisphereLight args={[0xffffff, 0x444444, 0.4]} position={[100, 0, 0]}/>
         <Stats/>

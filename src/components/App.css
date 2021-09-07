@@ -2,6 +2,29 @@
     height: 100%;
     font-family: Sans-Serif;
 }
+button {
+    border: 1px solid var(--main-color);
+    border-radius: 3px;
+    background-color: var(--button-color);
+    box-shadow: 0 0 1px .5px var(--text-color);
+    color: var(--text-color);
+    padding: 2.5px;
+    transition: all 70ms;
+}
+button:hover {
+    box-shadow: 0 0 4px 1px var(--text-color);
+}
+button:active {
+    box-shadow: inset 0 0 15px 1px var(--select-color);
+    transform: translateY(1px);
+}
+button:disabled {
+    background-color: var(--select-color);
+    opacity: 0.7;
+}
+button:disabled:hover {
+    box-shadow: none;
+}
 
 .scene {
     z-index: 1;

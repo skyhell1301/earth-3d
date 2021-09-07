@@ -1,5 +1,9 @@
 .play-button {
     background: none;
-    margin: 5px;
     font-size: 23px;
+    margin-left: 3px;
+}
+
+.play-button__img {
+    position: relative;
 }
