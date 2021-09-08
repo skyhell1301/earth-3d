@@ -1,8 +1,9 @@
 import React from "react"
 import './SpacecraftControl.css'
-import PanelItem from "./PanelItem";
+import PanelItem from "../PanelItem";
 import {useDispatch, useSelector} from "react-redux";
-import {setOrbitIsView} from "../../../store/reducers/spacecraftStateReducer";
+import {setOrbitIsView} from "../../../../store/reducers/spacecraftStateReducer";
+import OrientationControl from "./OrientationControl";
 
 function SpacecraftControl() {
   const isOrbit = useSelector(state=> state.spacecraft.orbitIsView)
@@ -12,9 +13,13 @@ function SpacecraftControl() {
       <PanelItem title='КА'>
         <label>
           Орбита:
-          <input type="checkbox" value={isOrbit} onInput={()=>dispatch(setOrbitIsView(!isOrbit))}/>
+          <input type="checkbox" checked={isOrbit}
+                 onChange={()=>dispatch(setOrbitIsView(!isOrbit))}
+          />
         </label>
+        <OrientationControl/>
       </PanelItem>
+
     </div>
   )
 }

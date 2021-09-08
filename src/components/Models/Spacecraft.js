@@ -6,9 +6,14 @@ import {useDispatch} from "react-redux";
 import {setOrbitPoint, setScannerProjection, setSubPoint, setTLE} from "../../store/reducers/spacecraftStateReducer";
 import * as THREE from "three";
 import * as satellite from "satellite.js";
-import {getNormalHeight, normalToRealHeight} from "../../help/coordinatesCalculate";
+import {
+  getNormalHeight,
+  normalToRealHeight,
+  THREEToWGSCoordinates,
+  WGSToTHREECoordinates
+} from "../../help/coordinatesCalculate";
 
-function Spacecraft({date, tle, isOrbit}) {
+function Spacecraft({date, tle, isOrbit, orientationEdges}) {
 
   const {scene, invalidate} = useThree()
   const dispatch = useDispatch()
@@ -23,15 +28,12 @@ function Spacecraft({date, tle, isOrbit}) {
       linewidth: 5,
     })))
 
-  const [projectionPoints, setProjectionPoints] = useState([])
+  // const [projectionPoints, setProjectionPoints] = useState([])
 
   function updateProjection() {
     if (spacecraft) {
-      let earth
-      scene.children.forEach(val => {
-        if (val.name === 'Earth') {
-          earth = val
-
+      scene.children.forEach(earth => {
+        if (earth.name === 'Earth') {
 
           let ray1 = new THREE.Raycaster(spacecraft.position, spacecraft.scannerProjection.topLeft);
           let ray2 = new THREE.Raycaster(spacecraft.position, spacecraft.scannerProjection.topMid);
@@ -47,32 +49,39 @@ function Spacecraft({date, tle, isOrbit}) {
           let rayIntersects5 = ray5.intersectObject(earth, true);
           let rayIntersects6 = ray6.intersectObject(earth, true);
 
-
           if (rayIntersects1[0]?.point && rayIntersects2[0]?.point && rayIntersects3[0]?.point && rayIntersects4[0]?.point && rayIntersects5[0]?.point && rayIntersects6[0]?.point) {
-            setProjectionPoints([])
-
-            projectionPoints.push(rayIntersects1[0].point)
-            projectionPoints.push(rayIntersects2[0].point)
-            projectionPoints.push(rayIntersects3[0].point)
-            projectionPoints.push(rayIntersects4[0].point)
-            projectionPoints.push(rayIntersects5[0].point)
-            projectionPoints.push(rayIntersects6[0].point)
+            let newArray = []
+            newArray.push(rayIntersects1[0].point)
+            newArray.push(rayIntersects2[0].point)
+            newArray.push(rayIntersects3[0].point)
+            newArray.push(rayIntersects4[0].point)
+            newArray.push(rayIntersects5[0].point)
+            newArray.push(rayIntersects6[0].point)
 
             let scannerGeoProjection = []
-
-            let newArray = projectionPoints.map(ecf => {
+            newArray = newArray.map((ecf, index) => {
               ecf.x = normalToRealHeight(ecf.x)
               ecf.y = normalToRealHeight(ecf.y)
               ecf.z = normalToRealHeight(ecf.z)
+              ecf = THREEToWGSCoordinates(ecf)
+
               let gmst = satellite.gstime(spacecraft.date)
               let eci = ecfToEci(ecf, gmst)
               let geo = satellite.eciToGeodetic(eci, gmst)
-              scannerGeoProjection.push(geo)
-              geo.height = 30
+
+              geo.height = 100
               ecf = satellite.geodeticToEcf(geo)
+              ecf = WGSToTHREECoordinates(ecf)
               ecf.x = getNormalHeight(ecf.x)
               ecf.y = getNormalHeight(ecf.y)
               ecf.z = getNormalHeight(ecf.z)
+
+              if(index !== 1 && index !== 4) {
+                geo.longitude = geo.longitude * 180 / Math.PI
+                geo.latitude = geo.latitude * 180 / Math.PI
+                scannerGeoProjection.push(geo)
+              }
+
               return ecf
             })
 
@@ -81,7 +90,12 @@ function Spacecraft({date, tle, isOrbit}) {
 
             const lineGeometry = new THREE.BufferGeometry().setFromPoints(newArray)
             lineProjection.geometry.copy(lineGeometry)
+          } else {
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints([])
+            lineProjection.geometry.copy(lineGeometry)
+            dispatch(setScannerProjection([]))
           }
+          invalidate()
         }
       })
     }
@@ -94,6 +108,14 @@ function Spacecraft({date, tle, isOrbit}) {
     }
     // eslint-disable-next-line
   }, [spacecraft])
+  useEffect(() => {
+    if (spacecraft) {
+      spacecraft.updateOrientationEdges(orientationEdges)
+      updateProjection()
+    }
+    // eslint-disable-next-line
+  }, [orientationEdges])
+
 
   useEffect(() => {
     if (spacecraft) {
@@ -161,7 +183,7 @@ function Spacecraft({date, tle, isOrbit}) {
         />
         <primitive object={spacecraft.orbit}/>
         <primitive object={spacecraft.spacecraftPoint}/>
-        <primitive object={lineProjection}></primitive>
+        <primitive object={lineProjection}/>
       </>
     )
   } else {

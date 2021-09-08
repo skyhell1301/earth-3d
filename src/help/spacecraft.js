@@ -41,6 +41,11 @@ export async function createSpacecraft(tle, stl, date) {
       downRight: new THREE.Vector3(),
       downMid: new THREE.Vector3(),
     },
+    orientationEdges: {
+      roll: 0, //крен (ось Y) в градусах
+      yaw: 0, //рысканье (ось Z) в градусах
+      pitch: 0, //тангаж (ось X) в градусах
+    },
     isOrbitShow: false,
     move: function move(date) {
       this.date = date
@@ -58,12 +63,11 @@ export async function createSpacecraft(tle, stl, date) {
       const threeCoordinate = WGSToTHREECoordinates(this.ecf_coord)
       this.position.set(getNormalHeight(threeCoordinate.x), getNormalHeight(threeCoordinate.y), getNormalHeight(threeCoordinate.z))
 
+      this.updateSpacecraftPoint(getSpacecraftPointCoordinates(threeCoordinate, this.date))
+
       this.updateMotionVector()
 
-      this.updateSpacecraftPoint(getSpacecraftPointCoordinates(threeCoordinate, this.date))
       spacecraft.up.set(this.motionVector.ecfNormal.x, this.motionVector.ecfNormal.y, this.motionVector.ecfNormal.z)
-
-      // this.updateOrbit()
       const quaternion = new THREE.Quaternion();
       let matrix = new THREE.Matrix4()
 
@@ -71,15 +75,19 @@ export async function createSpacecraft(tle, stl, date) {
       quaternion.setFromRotationMatrix(matrix)
       this.quaternion.rotateTowards(quaternion, 5)
 
-      // this.rotateZ(satellite.degreesToRadians(45))
-
-
+      this.rotateX(satellite.degreesToRadians(this.orientationEdges.pitch))
+      this.rotateY(satellite.degreesToRadians(this.orientationEdges.roll))
+      this.rotateZ(satellite.degreesToRadians(this.orientationEdges.yaw))
+      this.updateProjection()
+      this.updateMatrixWorld()
+    },
+    updateProjection: function () {
       let clone = this.clone()
 
       let Obzor_rad = 0.02359562
       let widthEdge = Obzor_rad  / 2
-      let widthEdge_rad = satellite.degreesToRadians(45) + widthEdge
-      let heightEdge_deg = 1
+      let widthEdge_rad =  widthEdge + satellite.degreesToRadians(45)
+      let heightEdge_deg = 1 //radToDeg(widthEdge)
 
       //down left
       clone.rotateY(widthEdge_rad)
@@ -112,7 +120,10 @@ export async function createSpacecraft(tle, stl, date) {
       clone.getWorldDirection(this.scannerProjection.topRight)
 
       clone.getWorldDirection(this.direction)
-      this.updateMatrixWorld()
+    },
+    updateOrientationEdges: function (edges) {
+      this.orientationEdges = edges
+      this.move(this.date)
     },
     updateOrbit: function () {
       let minuteForTurn = 1440 * 60 / 4//Math.round(1440 / motion)
@@ -174,7 +185,7 @@ export async function createSpacecraft(tle, stl, date) {
   }
   spacecraft.__proto__ = model
   spacecraft.matrixWorldNeedsUpdate = true
-  spacecraft.hideOrbit()
+  // spacecraft.hideOrbit()
   spacecraft.move(spacecraft.date)
   spacecraft.updateOrbit()
   return spacecraft
@@ -186,7 +197,7 @@ export async function createSpacecraft(tle, stl, date) {
  */
 function createOrbit() {
   const lineMaterial = new THREE.LineBasicMaterial({
-    color: 'red'
+    color: 'green'
   });
   const lineGeometry = new THREE.BufferGeometry()
 

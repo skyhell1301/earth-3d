@@ -1,7 +1,7 @@
 import React from "react"
 import './ControlPanel.css'
 import ViewControl from "./ViewControl";
-import SpacecraftControl from "./SpacecraftControl";
+import SpacecraftControl from "./SpacecraftControl/SpacecraftControl";
 
 function ControlPanel() {
 

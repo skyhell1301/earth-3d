@@ -17,6 +17,7 @@ function Scene3D({className}) {
   const date = new Date(useSelector(state => state.appState.localDate))
   const tle = useSelector(state => state.spacecraft.tle)
   const orbitIsView = useSelector(state => state.spacecraft.orbitIsView)
+  const orientationEdges = useSelector(state => state.spacecraft.orientationEdges)
 
   return (
     <Canvas
@@ -34,7 +35,7 @@ function Scene3D({className}) {
           <Earth/>
           <CameraControl/>
           <axesHelper args={[5]}/>
-          <Spacecraft date={date} tle={tle} isOrbit={orbitIsView}/>
+          <Spacecraft date={date} tle={tle} isOrbit={orbitIsView} orientationEdges={orientationEdges}/>
         </Provider>
         <hemisphereLight args={[0xffffff, 0x444444, 0.4]} position={[100, 0, 0]}/>
         <Stats/>

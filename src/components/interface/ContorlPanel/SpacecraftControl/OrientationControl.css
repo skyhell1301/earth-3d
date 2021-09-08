@@ -1,0 +1,8 @@
+.orientation-control {
+    display: flex;
+    flex-direction: column;
+}
+
+.orientation-control__item {
+    margin: 5px;
+}

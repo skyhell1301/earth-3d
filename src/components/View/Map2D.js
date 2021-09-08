@@ -5,7 +5,7 @@ import TileLayer from "ol/layer/Tile";
 import XYZ from "ol/source/XYZ";
 import {useDispatch, useSelector} from "react-redux";
 import {setCenter, setZoom} from "../../store/reducers/cameraPositionReducer";
-import {fromLonLat, transform} from 'ol/proj';
+import {fromLonLat} from 'ol/proj';
 import Feature from 'ol/Feature'
 import {fromExtent} from 'ol/geom/Polygon';
 import * as olProj from "ol/proj";
@@ -40,19 +40,17 @@ function Map2D({className}) {
     name: 'A point',
   }))
 
-  const [telescopeProjection] = useState(new Feature({
-    // geometry: new geom.Polygon(
-    //   // Outer Ring
-    //   [
-    //     olProj.transform([0, 0], 'EPSG:4326', 'EPSG:3857'),
-    //     olProj.transform([0, 40], 'EPSG:4326', 'EPSG:3857'),
-    //     olProj.transform([40, 40], 'EPSG:4326', 'EPSG:3857'),
-    //     olProj.transform([40, 0], 'EPSG:4326', 'EPSG:3857'),
-    //     olProj.transform([0, 0], 'EPSG:4326', 'EPSG:3857'),
-    //   ]
-    // )
-    geometry: fromExtent([fromLonLat([0, 0]),fromLonLat([0, 40])])
-  }))
+  const [telescopeProjection] = useState(new Feature(
+    new geom.Polygon([
+      [
+        [-3e6, -1e6],
+        [-3e6, 1e6],
+        [-1e6, 1e6],
+        [-1e6, -1e6],
+        [-3e6, -1e6],
+      ],
+    ])
+  ))
 
   const [orbitLine, setOrbitLine] = useState(null)
 
@@ -67,13 +65,10 @@ function Map2D({className}) {
 
   useEffect(() => {
     if (scannerProjection.length) {
-      // let points = scannerProjection.map(val => {
-      //   return [val.longitude, val.latitude]
-      // })
-      // console.log(points)
-      // telescopeProjection.getGeometry().setCoordinates(points)
-      // telescopeProjection.transform('EPSG:4326', 'EPSG:3857');
-      // map.render()
+      let points = scannerProjection.map(val => {
+        return olProj.transform([val.longitude, val.latitude], 'EPSG:4326', 'EPSG:3857')
+      })
+      telescopeProjection.getGeometry().setCoordinates([points])
     }
     // eslint-disable-next-line
   }, [scannerProjection])
@@ -143,8 +138,8 @@ function Map2D({className}) {
       }),
       style: new Style({
         image: new Circle({
-          radius: 40,
-          fill: new Fill({color: '#666666'}),
+          radius: 10,
+          fill: new Fill({color: '#4d8d1d'}),
           stroke: new Stroke({color: '#bada55', width: 1})
         }),
       })
@@ -159,7 +154,7 @@ function Map2D({className}) {
           width: 3,
         }),
         fill: new Fill({
-          color: 'rgba(0, 0, 255, 0.1)',
+          color: 'rgba(0, 0, 255, 0.5)',
         }),
       })
     });
