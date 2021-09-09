@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 export const spacecraftStateSlice = createSlice({
-  name: 'camPosition',
+  name: 'spacecraftState',
   initialState: {
     tle: 'TRITON-1\n' +
       '1 39427U 13066M   21203.82189194  .00000294  00000-0  54799-4 0  9994\n' +

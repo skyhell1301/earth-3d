@@ -1,0 +1,8 @@
+.view-control {
+    display: flex;
+    justify-content: space-around;
+}
+
+.view-control__item {
+    margin: 5px;
+}

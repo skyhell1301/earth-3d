@@ -13,7 +13,8 @@ export function getSunCoordinates(date) {
   let UT = date.getUTCHours() + (date.getUTCMinutes() / 60) + (date.getUTCSeconds() / 3600)
   // Вычисление модифицированной юлианской даты дня расчета.
   // let MD = 367 * date.getFullYear() - Math.floor(7 * (Math.floor((date.getMonth() + 9) / 12)) / 4) + Math.floor(275 * (date.getMonth() + 1) / 9) + date.getDate() - 678987
-  let MD = 367 * date.getUTCFullYear() - Math.trunc(7 * (date.getUTCFullYear() + (Math.trunc((date.getUTCMonth() + 9) / 12))) / 4) + Math.trunc(275 * (date.getUTCMonth() + 1) / 9) + date.getUTCDate() - 730530
+  let MD = 367 * date.getUTCFullYear() - Math.trunc(7 * (date.getUTCFullYear() + (Math.trunc((date.getUTCMonth() + 1 + 9) / 12))) / 4)
+            + Math.trunc(275 * (date.getUTCMonth() + 1) / 9) + date.getUTCDate() - 678987
 
   // Вычисление единичного геоцентрического вектора Солнца (X,Y,Z) на дату MD и время UT в эклиптической системе координат.
   let T = (MD - 51544.5) / 36525

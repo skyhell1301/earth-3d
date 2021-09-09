@@ -43,24 +43,27 @@ function OrientationControl() {
         Тангаж (град):
         <input type="number" min={-45} max={45} value={edges.pitch}
                onInput={e => changePitchHandler(e.target.value)}/>
-        <input type="range" min={-45} max={45} value={edges.pitch}
-               onInput={e => changePitchHandler(e.target.value)}/>
+
       </label>
+      <input type="range" min={-45} max={45} value={edges.pitch}
+             onInput={e => changePitchHandler(e.target.value)}/>
       <label className='orientation-control__item'>
         Крен (град):
         <input type="number" min={-45} max={45} value={edges.roll}
                onInput={e => changeRollHandler(e.target.value)}/>
-        <input type="range" min={-45} max={45} value={edges.roll}
-               onInput={e => changeRollHandler(e.target.value)}/>
+
       </label>
+      <input type="range" min={-45} max={45} value={edges.roll}
+             onInput={e => changeRollHandler(e.target.value)}/>
       <label className='orientation-control__item'>
         Рысканье (град):
         <input type="number" min={-180} max={180} value={edges.yaw}
                onInput={e => changeYawHandler(e.target.value)}/>
-        <input type="range" min={-180} max={180} value={edges.yaw}
-               onInput={e => changeYawHandler(e.target.value)}/>
+
       </label>
-      <button onClick={()=>dispatch(setOrientationEdges({roll: 0, yaw: 0, pitch: 0}))}
+      <input type="range" min={-180} max={180} value={edges.yaw}
+             onInput={e => changeYawHandler(e.target.value)}/>
+      <button onClick={() => dispatch(setOrientationEdges({roll: 0, yaw: 0, pitch: 0}))}
               className='orientation-control__item'
       >
         Сбросить

@@ -40,38 +40,38 @@ function Map2D({className}) {
     name: 'A point',
   }))
 
-  const [telescopeProjection] = useState(new Feature(
-    new geom.Polygon([
-      [
-        [-3e6, -1e6],
-        [-3e6, 1e6],
-        [-1e6, 1e6],
-        [-1e6, -1e6],
-        [-3e6, -1e6],
-      ],
-    ])
-  ))
+  const [telescopeProjection] = useState(new Feature(new geom.Polygon([])))
 
   const [orbitLine, setOrbitLine] = useState(null)
 
 
   useEffect(() => {
     if (!is3D) {
-      view.setZoom(zoom / coefficient)
-      view.setCenter(olProj.transform([center[0], center[1]], 'EPSG:4326', 'EPSG:3857'))
+      updateZoom()
+      updateScannerProjection()
+      updateSpacecraftPoint()
     }
     // eslint-disable-next-line
   }, [is3D])
 
+  function updateZoom() {
+    view.setZoom(zoom / coefficient)
+    view.setCenter(olProj.transform([center[0], center[1]], 'EPSG:4326', 'EPSG:3857'))
+  }
+
   useEffect(() => {
-    if (scannerProjection.length) {
+    updateScannerProjection()
+    // eslint-disable-next-line
+  }, [scannerProjection])
+
+  function updateScannerProjection() {
+    if (scannerProjection.length && !is3D) {
       let points = scannerProjection.map(val => {
         return olProj.transform([val.longitude, val.latitude], 'EPSG:4326', 'EPSG:3857')
       })
       telescopeProjection.getGeometry().setCoordinates([points])
     }
-    // eslint-disable-next-line
-  }, [scannerProjection])
+  }
 
   useEffect(() => {
     if (orbitPointsArray.length > 0) {
@@ -99,10 +99,14 @@ function Map2D({className}) {
   }, [orbitLine])
 
   useEffect(() => {
-    spacecraftPoint.getGeometry().setCoordinates(fromLonLat([spacecraftSubPoint.x, spacecraftSubPoint.y]))
-    map.render()
+    if(!is3D) updateSpacecraftPoint()
     // eslint-disable-next-line
   }, [spacecraftSubPoint])
+
+  function updateSpacecraftPoint() {
+    spacecraftPoint.getGeometry().setCoordinates(fromLonLat([spacecraftSubPoint.x, spacecraftSubPoint.y]))
+    map.render()
+  }
 
   useEffect(() => {
     if (orders.length) {

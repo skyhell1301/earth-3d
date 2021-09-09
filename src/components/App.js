@@ -7,9 +7,11 @@ import DateInformation from "./interface/DateInformation/DateInformation";
 import TLEParams from "./interface/TLEInformation/TLEParams";
 import ControlPanel from "./interface/ContorlPanel/ControlPanel";
 import StateViewButton from "./interface/StateViewButton/StateViewButton";
+import Logo from "./interface/Logo/Logo";
 
 const App = () => {
   const is3D = useSelector(state => state.appState.is3D)
+  const isLoaded = useSelector(state => state.appState.isLoaded)
 
   function isHide3D() {
     return !is3D ? ' hide-layer' : ''
@@ -21,10 +23,15 @@ const App = () => {
 
   return (
     <div className='app'>
-      <StateViewButton/>
-      <DateInformation/>
-      <TLEParams/>
-      <ControlPanel/>
+      {isLoaded ?
+        <div>
+          <StateViewButton/>
+          <DateInformation/>
+          <TLEParams/>
+          <ControlPanel/>
+          <Logo/>
+        </div> : null
+      }
       <Scene3D className={'scene' + isHide3D()}/>
       <Map2D className={'map2d' + isHide2D()}/>
       <div id='map3D' className='map3d'/>

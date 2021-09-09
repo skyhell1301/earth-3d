@@ -18,6 +18,8 @@ function Scene3D({className}) {
   const tle = useSelector(state => state.spacecraft.tle)
   const orbitIsView = useSelector(state => state.spacecraft.orbitIsView)
   const orientationEdges = useSelector(state => state.spacecraft.orientationEdges)
+  const isAxes = useSelector(state => state.interface.isAxes)
+  const isGrid = useSelector(state => state.interface.isGrid)
 
   return (
     <Canvas
@@ -25,8 +27,6 @@ function Scene3D({className}) {
       frameloop="demand"
       concurrent
       shadows
-      // orthographic
-      // camera={{position:[2,0,0], left: -10000, right: 10000, top: 10000, bottom: -10000, near: 0.1, far:1000}}
     >
       <Suspense fallback={<LoadingView/>}>
         <Provider store={store}>
@@ -34,7 +34,8 @@ function Scene3D({className}) {
           <Sun date={date}/>
           <Earth/>
           <CameraControl/>
-          <axesHelper args={[5]}/>
+          {isAxes ? <axesHelper args={[5]}/> : null}
+          {isGrid ? <gridHelper/> : null}
           <Spacecraft date={date} tle={tle} isOrbit={orbitIsView} orientationEdges={orientationEdges}/>
         </Provider>
         <hemisphereLight args={[0xffffff, 0x444444, 0.4]} position={[100, 0, 0]}/>

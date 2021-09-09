@@ -12,6 +12,7 @@ import {
   THREEToWGSCoordinates,
   WGSToTHREECoordinates
 } from "../../help/coordinatesCalculate";
+import {setLoadStatus} from "../../store/reducers/appStateReducer";
 
 function Spacecraft({date, tle, isOrbit, orientationEdges}) {
 
@@ -25,7 +26,7 @@ function Spacecraft({date, tle, isOrbit, orientationEdges}) {
     new THREE.BufferGeometry(),
     new THREE.LineBasicMaterial({
       color: 'red',
-      linewidth: 5,
+      linewidth: 4,
     })))
 
   // const [projectionPoints, setProjectionPoints] = useState([])
@@ -69,7 +70,7 @@ function Spacecraft({date, tle, isOrbit, orientationEdges}) {
               let eci = ecfToEci(ecf, gmst)
               let geo = satellite.eciToGeodetic(eci, gmst)
 
-              geo.height = 100
+              geo.height = 50
               ecf = satellite.geodeticToEcf(geo)
               ecf = WGSToTHREECoordinates(ecf)
               ecf.x = getNormalHeight(ecf.x)
@@ -105,6 +106,7 @@ function Spacecraft({date, tle, isOrbit, orientationEdges}) {
     if (spacecraft) {
       updateProjection()
       invalidate()
+      dispatch(setLoadStatus(true))
     }
     // eslint-disable-next-line
   }, [spacecraft])
