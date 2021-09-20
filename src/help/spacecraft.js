@@ -33,13 +33,14 @@ export async function createSpacecraft(tle, stl, date) {
     ecf_coord: {},
     motionVector: {},
     direction: new THREE.Vector3(),
-    scannerProjection: {
-      topRight: new THREE.Vector3(),
-      topLeft: new THREE.Vector3(),
-      topMid: new THREE.Vector3(),
-      downLeft: new THREE.Vector3(),
-      downRight: new THREE.Vector3(),
-      downMid: new THREE.Vector3(),
+    currentScannerProjection: {
+      left: new THREE.Vector3(),
+      right: new THREE.Vector3(),
+    },
+    deviationBandProjection: {
+      left: new THREE.Vector3(),
+      right: new THREE.Vector3(),
+      center: new THREE.Vector3(),
     },
     orientationEdges: {
       roll: 0, //крен (ось Y) в градусах
@@ -75,51 +76,39 @@ export async function createSpacecraft(tle, stl, date) {
       quaternion.setFromRotationMatrix(matrix)
       this.quaternion.rotateTowards(quaternion, 5)
 
+      this.updateDeviationBand()
+
       this.rotateX(satellite.degreesToRadians(this.orientationEdges.pitch))
       this.rotateY(satellite.degreesToRadians(this.orientationEdges.roll))
       this.rotateZ(satellite.degreesToRadians(this.orientationEdges.yaw))
-      this.updateProjection()
+
+      this.updateCurrentObzorBand()
+
       this.updateMatrixWorld()
     },
-    updateProjection: function () {
+    updateDeviationBand: function() {
+      let clone = this.clone()
+      let edge_rad = satellite.degreesToRadians(45)
+
+      clone.getWorldDirection(this.deviationBandProjection.center)
+
+      clone.rotateY(edge_rad)
+      clone.getWorldDirection(this.deviationBandProjection.left)
+
+      clone.rotateY(-2 * edge_rad)
+      clone.getWorldDirection(this.deviationBandProjection.right)
+    },
+    updateCurrentObzorBand: function () {
       let clone = this.clone()
 
       let Obzor_rad = 0.02359562
-      let widthEdge = Obzor_rad  / 2
-      let widthEdge_rad =  widthEdge + satellite.degreesToRadians(45)
-      let heightEdge_deg = 1 //radToDeg(widthEdge)
+      let widthEdge_rad = Obzor_rad  / 2
 
-      //down left
       clone.rotateY(widthEdge_rad)
-      clone.rotateX(satellite.degreesToRadians(heightEdge_deg))
-      clone.getWorldDirection(this.scannerProjection.downLeft)
+      clone.getWorldDirection(this.currentScannerProjection.left)
 
-      //top left
-      clone.rotateX(satellite.degreesToRadians(-2 * heightEdge_deg))
-      clone.getWorldDirection(this.scannerProjection.topLeft)
-
-
-      //top mid
-      clone.rotateX(satellite.degreesToRadians(heightEdge_deg))
-      clone.rotateY(-widthEdge_rad)
-      clone.rotateX(satellite.degreesToRadians(-heightEdge_deg))
-      clone.getWorldDirection(this.scannerProjection.topMid)
-
-      //down mid
-      clone.rotateX(satellite.degreesToRadians(2 * heightEdge_deg))
-      clone.getWorldDirection(this.scannerProjection.downMid)
-
-      //down right
-      clone.rotateX(satellite.degreesToRadians(-heightEdge_deg))
-      clone.rotateY(-widthEdge_rad)
-      clone.rotateX(satellite.degreesToRadians(heightEdge_deg))
-      clone.getWorldDirection(this.scannerProjection.downRight)
-
-      //top right
-      clone.rotateX(satellite.degreesToRadians(-2 * heightEdge_deg))
-      clone.getWorldDirection(this.scannerProjection.topRight)
-
-      clone.getWorldDirection(this.direction)
+      clone.rotateY(-2 * widthEdge_rad)
+      clone.getWorldDirection(this.currentScannerProjection.right)
     },
     updateOrientationEdges: function (edges) {
       this.orientationEdges = edges
@@ -230,7 +219,7 @@ function getSatrec(tle) {
  * @return {[satellite.twoline2satrec]} Возвращает инициализированую спутниковую запись
  */
 function createSpacecraftPoint(coordinates) {
-  let pointGeometry = new THREE.SphereGeometry(0.008)
+  let pointGeometry = new THREE.SphereGeometry(0.006)
   let pointMaterial = new THREE.MeshBasicMaterial({color: 'blue'})
   let point = new THREE.Mesh(pointGeometry, pointMaterial)
   point.position.set(coordinates.x, coordinates.y, coordinates.z)

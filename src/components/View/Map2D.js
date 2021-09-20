@@ -4,7 +4,7 @@ import Map from "ol/Map";
 import TileLayer from "ol/layer/Tile";
 import XYZ from "ol/source/XYZ";
 import {useDispatch, useSelector} from "react-redux";
-import {setCenter, setZoom} from "../../store/reducers/cameraPositionReducer";
+// import {setCenter, setZoom} from "../../store/reducers/cameraPositionReducer";
 import {fromLonLat} from 'ol/proj';
 import Feature from 'ol/Feature'
 import {fromExtent} from 'ol/geom/Polygon';
@@ -25,6 +25,7 @@ function Map2D({className}) {
   const spacecraftSubPoint = useSelector(state => state.spacecraft.lonAndLat)
   const orbitPointsArray = useSelector(state => state.spacecraft.orbitPoints)
   const scannerProjection = useSelector(state => state.spacecraft.scannerProjection)
+  const deviationProjection = useSelector(state => state.spacecraft.deviationProjection)
 
 
   const dispatch = useDispatch()
@@ -40,14 +41,26 @@ function Map2D({className}) {
     name: 'A point',
   }))
 
-  const [telescopeProjection] = useState(new Feature(new geom.Polygon([])))
+  const [deviationProjectionFeature] = useState(new Feature(new geom.Polygon([])))
+  const [scannerProjectionFeature] = useState(new Feature(new geom.Polygon([])))
 
-  const [orbitLine, setOrbitLine] = useState(null)
+  const [orbitLayer] = useState(new layer.Vector({
+    source: new source.Vector({
+      features: [],
+    }),
+    style: new Style({
+      stroke: new Stroke({
+        color: '#666666',
+        width: 5,
+      }),
+    }),
+  }))
 
 
   useEffect(() => {
     if (!is3D) {
       updateZoom()
+      updateDeviationProjection()
       updateScannerProjection()
       updateSpacecraftPoint()
     }
@@ -60,6 +73,20 @@ function Map2D({className}) {
   }
 
   useEffect(() => {
+    updateDeviationProjection()
+    // eslint-disable-next-line
+  }, [deviationProjection])
+
+  function updateDeviationProjection() {
+    if (deviationProjection.length && !is3D) {
+      let points = deviationProjection.map(val => {
+        return olProj.transform([val.longitude, val.latitude], 'EPSG:4326', 'EPSG:3857')
+      })
+      deviationProjectionFeature.getGeometry().setCoordinates([points])
+    }
+  }
+
+  useEffect(() => {
     updateScannerProjection()
     // eslint-disable-next-line
   }, [scannerProjection])
@@ -69,34 +96,16 @@ function Map2D({className}) {
       let points = scannerProjection.map(val => {
         return olProj.transform([val.longitude, val.latitude], 'EPSG:4326', 'EPSG:3857')
       })
-      telescopeProjection.getGeometry().setCoordinates([points])
+      scannerProjectionFeature.getGeometry().setCoordinates([points])
     }
   }
 
   useEffect(() => {
     if (orbitPointsArray.length > 0) {
-      setOrbitLine(getOrbitFeaturesArray())
+      orbitLayer.getSource().addFeatures(getOrbitFeaturesArray())
     }
     // eslint-disable-next-line
   }, [orbitPointsArray])
-
-  useEffect(() => {
-    if (orbitLine) {
-      map.addLayer(new layer.Vector({
-        source: new source.Vector({
-          features: orbitLine,
-        }),
-        style: new Style({
-          stroke: new Stroke({
-            color: '#666666',
-            width: 5,
-          }),
-        }),
-      }))
-      map.render()
-    }
-    // eslint-disable-next-line
-  }, [orbitLine])
 
   useEffect(() => {
     if(!is3D) updateSpacecraftPoint()
@@ -143,19 +152,20 @@ function Map2D({className}) {
       style: new Style({
         image: new Circle({
           radius: 10,
-          fill: new Fill({color: '#4d8d1d'}),
-          stroke: new Stroke({color: '#bada55', width: 1})
+          fill: new Fill({color: '#e4eae2'}),
+          stroke: new Stroke({color: '#2b2b2b', width: 2})
         }),
       })
     });
-    let telescopeProjectionLayer = new layer.Vector({
+
+    let deviationProjectionLayer = new layer.Vector({
       source: new source.Vector({
-        features: [telescopeProjection]
+        features: [deviationProjectionFeature]
       }),
       style: new Style({
         stroke: new Stroke({
           color: 'blue',
-          width: 3,
+          width: 10,
         }),
         fill: new Fill({
           color: 'rgba(0, 0, 255, 0.5)',
@@ -163,6 +173,20 @@ function Map2D({className}) {
       })
     });
 
+    let scannerProjectionLayer = new layer.Vector({
+      source: new source.Vector({
+        features: [scannerProjectionFeature]
+      }),
+      style: new Style({
+        stroke: new Stroke({
+          color: 'rgba(26,145,9)',
+          width: 10,
+        }),
+        fill: new Fill({
+          color: 'rgba(49,222,22,0.5)',
+        }),
+      })
+    });
 
     let mapLayer = new TileLayer({
       source: new XYZ({
@@ -171,15 +195,17 @@ function Map2D({className}) {
     })
     map.setView(view)
     map.addLayer(mapLayer)
+    map.addLayer(orbitLayer)
+    map.addLayer(deviationProjectionLayer)
+    map.addLayer(scannerProjectionLayer)
     map.addLayer(spacecraftPointLayer)
-    map.addLayer(telescopeProjectionLayer)
     map.setTarget('map2D')
     map.render()
 
-    view.on('change', () => {
-      dispatch(setZoom(view.getZoom() * coefficient))
-      dispatch(setCenter(olProj.transform(view.getCenter(), 'EPSG:3857', 'EPSG:4326')))
-    })
+    // view.on('change', () => {
+    //   dispatch(setZoom(view.getZoom() * coefficient))
+    //   dispatch(setCenter(olProj.transform(view.getCenter(), 'EPSG:3857', 'EPSG:4326')))
+    // })
     // eslint-disable-next-line
   }, [])
 

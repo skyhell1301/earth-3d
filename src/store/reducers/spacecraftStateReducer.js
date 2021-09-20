@@ -9,6 +9,7 @@ export const spacecraftStateSlice = createSlice({
     lonAndLat: {x:0, y:0},
     orbitPoints: [],
     scannerProjection: [],
+    deviationProjection: [],
     orientationEdges: {
       roll: 0, //крен (ось Y) в градусах
       yaw: 0, //рысканье (ось Z) в градусах
@@ -32,11 +33,23 @@ export const spacecraftStateSlice = createSlice({
     setScannerProjection: (state, action) => {
       state.scannerProjection = action.payload
     },
+    setDeviationScannerProjection: (state, action) => {
+      state.deviationProjection = action.payload
+    },
     setOrientationEdges: (state, action) => {
       state.orientationEdges = action.payload
     },
   }
 })
 
-export const {setTLE, setSubPoint, setOrbitPoint, setOrbitIsView, setScannerProjection, setOrientationEdges} = spacecraftStateSlice.actions
+export const {
+  setTLE,
+  setSubPoint,
+  setOrbitPoint,
+  setOrbitIsView,
+  setScannerProjection,
+  setOrientationEdges,
+  setDeviationScannerProjection
+} = spacecraftStateSlice.actions
+
 export default spacecraftStateSlice.reducer

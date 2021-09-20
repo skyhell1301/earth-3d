@@ -9,17 +9,17 @@ import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import GeoJSON from 'ol/format/GeoJSON'
 import geojson from '../../assets/JSON/countries.json'
-import {useDispatch, useSelector} from "react-redux";
-import {setCenter} from "../../store/reducers/cameraPositionReducer";
+// import {useDispatch, useSelector} from "react-redux";
+// import {setCenter} from "../../store/reducers/cameraPositionReducer";
 
 function Earth() {
   const {camera} = useThree()
   const [globe, setGlobe] = useState(null);
   const [earth] = useState(getEarth(camera))
-  const [map, setMap] = useState(null)
+  // const [map, setMap] = useState(null)
 
-  const is3D = useSelector(state=> state.appState.is3D)
-  const dispatch = useDispatch()
+  // const is3D = useSelector(state=> state.appState.is3D)
+  // const dispatch = useDispatch()
 
   function getGlobe() {
     if (earth && globe) {
@@ -83,7 +83,7 @@ function Earth() {
       target: 'map3D',
       view: view
     })
-    setMap(map3D)
+    // setMap(map3D)
     //
     map3D.once('rendercomplete', function () {
       let mapCanvas = document.createElement('canvas');
@@ -112,7 +112,7 @@ function Earth() {
             mapContext.drawImage(canvas, 0, 0);
           }
           let newMesh = new THREE.Mesh(
-            new THREE.SphereGeometry(1, 32, 32),
+            new THREE.SphereGeometry(1.006, 32, 32),
             new THREE.MeshLambertMaterial({transparent: true})
           )
           newMesh.material.map = new THREE.CanvasTexture(mapCanvas)
@@ -125,25 +125,25 @@ function Earth() {
   }, [])
 
   useFrame(() => {
-    if (is3D) {
-      if (map && globe) {
-        const currentWidth = 8000
-        let ray = new THREE.Raycaster()
-        ray.setFromCamera({x: 0, y: 0}, camera)
-        let intersects = ray.intersectObject(globe)
-
-        let x = map.getCoordinateFromPixel([
-          intersects[0]?.uv.x * currentWidth,
-          (intersects[0]?.uv.y * currentWidth) / 2
-        ])[0];
-
-        let y = -map.getCoordinateFromPixel([
-          intersects[0]?.uv.x * currentWidth,
-          (intersects[0]?.uv.y * currentWidth) / 2
-        ])[1];
-        dispatch(setCenter([x, y]))
-      }
-    }
+    // if (is3D) {
+    //   if (map && globe) {
+    //     const currentWidth = 8000
+    //     let ray = new THREE.Raycaster()
+    //     ray.setFromCamera({x: 0, y: 0}, camera)
+    //     let intersects = ray.intersectObject(globe)
+    //
+    //     let x = map.getCoordinateFromPixel([
+    //       intersects[0]?.uv.x * currentWidth,
+    //       (intersects[0]?.uv.y * currentWidth) / 2
+    //     ])[0];
+    //
+    //     let y = -map.getCoordinateFromPixel([
+    //       intersects[0]?.uv.x * currentWidth,
+    //       (intersects[0]?.uv.y * currentWidth) / 2
+    //     ])[1];
+    //     dispatch(setCenter([x, y]))
+    //   }
+    // }
   })
 
   return getGlobe()

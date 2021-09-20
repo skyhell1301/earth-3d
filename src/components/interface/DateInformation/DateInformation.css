@@ -1,7 +1,7 @@
 .date-container {
     position: absolute;
     width: 510px;
-    top: 0;
+    bottom: 0;
     left: 37%;
     color: var(--text-color);
     font-size: 18px;

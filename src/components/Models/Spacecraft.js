@@ -3,7 +3,13 @@ import {createSpacecraft, ecfToEci} from "../../help/spacecraft";
 import satelliteStl from '../../assets/models/smotr/smotr_ver2.stl'
 import {useThree} from "@react-three/fiber";
 import {useDispatch} from "react-redux";
-import {setOrbitPoint, setScannerProjection, setSubPoint, setTLE} from "../../store/reducers/spacecraftStateReducer";
+import {
+  setDeviationScannerProjection,
+  setOrbitPoint,
+  setScannerProjection,
+  setSubPoint,
+  setTLE
+} from "../../store/reducers/spacecraftStateReducer";
 import * as THREE from "three";
 import * as satellite from "satellite.js";
 import {
@@ -14,7 +20,7 @@ import {
 } from "../../help/coordinatesCalculate";
 import {setLoadStatus} from "../../store/reducers/appStateReducer";
 
-function Spacecraft({date, tle, isOrbit, orientationEdges}) {
+function Spacecraft({date, tle, isOrbit= true, orientationEdges}) {
 
   const {scene, invalidate} = useThree()
   const dispatch = useDispatch()
@@ -22,11 +28,18 @@ function Spacecraft({date, tle, isOrbit, orientationEdges}) {
 
   const [spacecraft, setSpacecraft] = useState(null)
 
-  const [lineProjection] = useState(new THREE.Line(
+  const [deviationLineProjection] = useState(new THREE.Line(
+    new THREE.BufferGeometry(),
+    new THREE.LineBasicMaterial({
+      color: 'orange',
+      linewidth: 4,
+    })))
+
+  const [currentLineProjection] = useState(new THREE.Line(
     new THREE.BufferGeometry(),
     new THREE.LineBasicMaterial({
       color: 'red',
-      linewidth: 4,
+      linewidth: 5,
     })))
 
   // const [projectionPoints, setProjectionPoints] = useState([])
@@ -36,30 +49,29 @@ function Spacecraft({date, tle, isOrbit, orientationEdges}) {
       scene.children.forEach(earth => {
         if (earth.name === 'Earth') {
 
-          let ray1 = new THREE.Raycaster(spacecraft.position, spacecraft.scannerProjection.topLeft);
-          let ray2 = new THREE.Raycaster(spacecraft.position, spacecraft.scannerProjection.topMid);
-          let ray3 = new THREE.Raycaster(spacecraft.position, spacecraft.scannerProjection.topRight);
-          let ray4 = new THREE.Raycaster(spacecraft.position, spacecraft.scannerProjection.downRight);
-          let ray5 = new THREE.Raycaster(spacecraft.position, spacecraft.scannerProjection.downMid);
-          let ray6 = new THREE.Raycaster(spacecraft.position, spacecraft.scannerProjection.downLeft);
+          let ray1 = new THREE.Raycaster(spacecraft.position, spacecraft.deviationBandProjection.left)
+          let ray2 = new THREE.Raycaster(spacecraft.position, spacecraft.deviationBandProjection.center)
+          let ray3 = new THREE.Raycaster(spacecraft.position, spacecraft.deviationBandProjection.right)
 
-          let rayIntersects1 = ray1.intersectObject(earth, true);
-          let rayIntersects2 = ray2.intersectObject(earth, true);
-          let rayIntersects3 = ray3.intersectObject(earth, true);
-          let rayIntersects4 = ray4.intersectObject(earth, true);
-          let rayIntersects5 = ray5.intersectObject(earth, true);
-          let rayIntersects6 = ray6.intersectObject(earth, true);
+          let ray4 = new THREE.Raycaster(spacecraft.position, spacecraft.currentScannerProjection.left)
+          let ray5 = new THREE.Raycaster(spacecraft.position, spacecraft.currentScannerProjection.right)
 
-          if (rayIntersects1[0]?.point && rayIntersects2[0]?.point && rayIntersects3[0]?.point && rayIntersects4[0]?.point && rayIntersects5[0]?.point && rayIntersects6[0]?.point) {
+
+
+          let rayIntersects1 = ray1.intersectObject(earth, true)
+          let rayIntersects2 = ray2.intersectObject(earth, true)
+          let rayIntersects3 = ray3.intersectObject(earth, true)
+
+          let rayIntersects4 = ray4.intersectObject(earth, true)
+          let rayIntersects5 = ray5.intersectObject(earth, true)
+
+          if (rayIntersects1[0]?.point && rayIntersects2[0]?.point && rayIntersects3[0]?.point) {
             let newArray = []
             newArray.push(rayIntersects1[0].point)
             newArray.push(rayIntersects2[0].point)
             newArray.push(rayIntersects3[0].point)
-            newArray.push(rayIntersects4[0].point)
-            newArray.push(rayIntersects5[0].point)
-            newArray.push(rayIntersects6[0].point)
 
-            let scannerGeoProjection = []
+            let deviationScannerGeoProjection = []
             newArray = newArray.map((ecf, index) => {
               ecf.x = normalToRealHeight(ecf.x)
               ecf.y = normalToRealHeight(ecf.y)
@@ -70,32 +82,70 @@ function Spacecraft({date, tle, isOrbit, orientationEdges}) {
               let eci = ecfToEci(ecf, gmst)
               let geo = satellite.eciToGeodetic(eci, gmst)
 
-              geo.height = 50
+              geo.height = 40
               ecf = satellite.geodeticToEcf(geo)
               ecf = WGSToTHREECoordinates(ecf)
               ecf.x = getNormalHeight(ecf.x)
               ecf.y = getNormalHeight(ecf.y)
               ecf.z = getNormalHeight(ecf.z)
 
-              if(index !== 1 && index !== 4) {
+              // if(index !== 1) {
                 geo.longitude = geo.longitude * 180 / Math.PI
                 geo.latitude = geo.latitude * 180 / Math.PI
-                scannerGeoProjection.push(geo)
-              }
+                deviationScannerGeoProjection.push(geo)
+              // }
+              return ecf
+            })
+            deviationScannerGeoProjection.push(deviationScannerGeoProjection[1])
+            dispatch(setDeviationScannerProjection(deviationScannerGeoProjection))
+
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints(newArray)
+            deviationLineProjection.geometry.copy(lineGeometry)
+          } else {
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints([])
+            deviationLineProjection.geometry.copy(lineGeometry)
+            dispatch(setDeviationScannerProjection([]))
+          }
+
+          if (rayIntersects4[0]?.point && rayIntersects5[0]?.point) {
+            let array = []
+            array.push(rayIntersects4[0].point)
+            array.push(rayIntersects5[0].point)
+
+            let scannerGeoProjection = []
+            array = array.map(ecf => {
+              ecf.x = normalToRealHeight(ecf.x)
+              ecf.y = normalToRealHeight(ecf.y)
+              ecf.z = normalToRealHeight(ecf.z)
+              ecf = THREEToWGSCoordinates(ecf)
+
+              let gmst = satellite.gstime(spacecraft.date)
+              let eci = ecfToEci(ecf, gmst)
+              let geo = satellite.eciToGeodetic(eci, gmst)
+
+              geo.height = 40
+              ecf = satellite.geodeticToEcf(geo)
+              ecf = WGSToTHREECoordinates(ecf)
+              ecf.x = getNormalHeight(ecf.x)
+              ecf.y = getNormalHeight(ecf.y)
+              ecf.z = getNormalHeight(ecf.z)
+
+              geo.longitude = geo.longitude * 180 / Math.PI
+              geo.latitude = geo.latitude * 180 / Math.PI
+              scannerGeoProjection.push(geo)
 
               return ecf
             })
-
             dispatch(setScannerProjection(scannerGeoProjection))
-            newArray.push(newArray[0])
 
-            const lineGeometry = new THREE.BufferGeometry().setFromPoints(newArray)
-            lineProjection.geometry.copy(lineGeometry)
+            const lineGeometry = new THREE.BufferGeometry().setFromPoints(array)
+            currentLineProjection.geometry.copy(lineGeometry)
           } else {
             const lineGeometry = new THREE.BufferGeometry().setFromPoints([])
-            lineProjection.geometry.copy(lineGeometry)
+            currentLineProjection.geometry.copy(lineGeometry)
             dispatch(setScannerProjection([]))
           }
+
           invalidate()
         }
       })
@@ -184,8 +234,9 @@ function Spacecraft({date, tle, isOrbit, orientationEdges}) {
                    onContextMenu={() => console.log('kek')}
         />
         <primitive object={spacecraft.orbit}/>
-        <primitive object={spacecraft.spacecraftPoint}/>
-        <primitive object={lineProjection}/>
+        {/*<primitive object={spacecraft.spacecraftPoint}/>*/}
+        <primitive object={deviationLineProjection}/>
+        <primitive object={currentLineProjection}/>
       </>
     )
   } else {
