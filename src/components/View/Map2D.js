@@ -14,7 +14,6 @@ import * as source from "ol/source";
 import * as layer from "ol/layer";
 import {Circle, Fill, Stroke, Style} from "ol/style";
 import {fetchOrders} from "../../store/reducers/ordersReducer";
-import calculateZSRadius from "../../help/earthStation";
 
 
 function Map2D({className}) {
@@ -106,24 +105,21 @@ function Map2D({className}) {
   useEffect(() => {
     const layers = map.getLayers().getArray()
 
+    layers.filter((value, index) => value.get('type') === 'zs').forEach(value => map.removeLayer(value))
+
     zsList.forEach(zs => {
-      let flag = true
-      layers.forEach(value => {
-        if (value.get('name') === zs.name) {
-          flag = false
-        }
-      })
-      if (flag) {
-        addZS(zs.longitude, zs.latitude, 500, zs.name)
-      }
+        addZS(zs)
     })
     // eslint-disable-next-line
   }, [zsList])
 
-  function addZS(longitude, latitude, orbitHeight = 500, name) {
+  function addZS(zs) {
+    const zone5 = zs.zone5.map(coordinate => olProj.fromLonLat(coordinate))
+    const zone7 = zs.zone7.map(coordinate => olProj.fromLonLat(coordinate))
+
     let ZSZone5 = new layer.Vector({
       source: new source.Vector({
-        features: [new Feature(new geom.Polygon([calculateZSRadius(longitude, latitude, 5, orbitHeight)]))]
+        features: [new Feature(new geom.Polygon([zone5]))]
       }),
       style: new Style({
         stroke: new Stroke({
@@ -134,13 +130,14 @@ function Map2D({className}) {
           color: 'rgba(222,22,75,0.2)',
         }),
       }),
-      name: name,
+      name: zs.name,
+      type: 'zs',
       zIndex: 10
     })
 
     let ZSZone7 = new layer.Vector({
       source: new source.Vector({
-        features: [new Feature(new geom.Polygon([calculateZSRadius(longitude, latitude, 7, orbitHeight)]))]
+        features: [new Feature(new geom.Polygon([zone7]))]
       }),
       style: new Style({
         stroke: new Stroke({
@@ -151,14 +148,15 @@ function Map2D({className}) {
           color: 'rgba(27,231,11,0.2)',
         }),
       }),
-      name: name,
+      name: zs.name,
+      type: 'zs',
       zIndex: 11
     })
 
     let ZSPoint = new layer.Vector({
       source: new source.Vector({
         features: [new Feature({
-          geometry: new geom.Point(fromLonLat([longitude, latitude])),
+          geometry: new geom.Point(fromLonLat([zs.longitude, zs.latitude])),
         })]
       }),
       style: new Style({
@@ -168,7 +166,8 @@ function Map2D({className}) {
           stroke: new Stroke({color: '#2b2b2b', width: 2})
         }),
       }),
-      name: name,
+      name: zs.name,
+      type: 'zs',
       zIndex: 12
     })
 
@@ -177,11 +176,11 @@ function Map2D({className}) {
     map.addLayer(ZSPoint)
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     const layers = map.getLayers().getArray()
     layers.forEach(layer => {
       zsList.forEach(zs => {
-        if(layer.get('name') === zs.name) {
+        if (layer.get('name') === zs.name) {
           layer.setVisible(isZSShow)
         }
       })

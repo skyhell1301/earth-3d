@@ -11,6 +11,7 @@ export default function Stats({ showPanel = 0, className }) {
     stats.showPanel(showPanel)
     node.appendChild(stats.dom)
 
+    stats.dom.style.left = '19%'
     if (className) stats.dom.classList.add(className)
 
     const begin = addEffect(() => stats.begin())

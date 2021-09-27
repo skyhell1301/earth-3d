@@ -1,5 +1,3 @@
-import * as olProj from "ol/proj";
-
 export default function calculateZSRadius(LonStation = 37.378847, LatStation = 55.558741, edge = 5, orbitHeight = 500) {
   const Re = 6378.137  //Радиус Земли (км)
 
@@ -22,7 +20,7 @@ export default function calculateZSRadius(LonStation = 37.378847, LatStation = 5
     if (lon) {
       coordinate.latitude = fi
       coordinate.longitude = lon * 180 / Math.PI
-      coordinates.push(olProj.transform([coordinate.longitude, coordinate.latitude], 'EPSG:4326', 'EPSG:3857'))
+      coordinates.push([coordinate.longitude, coordinate.latitude])
     }
   }
   for (let fi = 90; fi > -90; fi = fi - 0.01) {
@@ -32,7 +30,7 @@ export default function calculateZSRadius(LonStation = 37.378847, LatStation = 5
     if (lon) {
       coordinate.latitude = fi
       coordinate.longitude = lon * 180 / Math.PI
-      coordinates.push(olProj.transform([coordinate.longitude, coordinate.latitude], 'EPSG:4326', 'EPSG:3857'))
+      coordinates.push([coordinate.longitude, coordinate.latitude])
     }
   }
   return coordinates

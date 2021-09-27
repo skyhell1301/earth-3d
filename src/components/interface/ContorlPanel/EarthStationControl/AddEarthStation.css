@@ -8,8 +8,8 @@
 }
 
 .add-station__label {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 50% 50%;
 }
 
 .add-station__button {

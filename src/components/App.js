@@ -8,6 +8,7 @@ import TLEParams from "./interface/TLEInformation/TLEParams";
 import ControlPanel from "./interface/ContorlPanel/ControlPanel";
 import StateViewButton from "./interface/StateViewButton/StateViewButton";
 import Logo from "./interface/Logo/Logo";
+import ZSList from "./interface/EarthStationsInformation/ZSList";
 
 const App = () => {
   const is3D = useSelector(state => state.appState.is3D)
@@ -29,6 +30,7 @@ const App = () => {
           <DateInformation/>
           <TLEParams/>
           <ControlPanel/>
+          <ZSList/>
           <Logo/>
         </div> : null
       }

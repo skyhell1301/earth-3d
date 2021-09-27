@@ -1,0 +1,46 @@
+.zs-information {
+    position: absolute;
+    z-index: 10;
+    bottom: 8px;
+    right: 0;
+    color: var(--text-color);
+    font-size: 17px;
+    margin-top: 2px;
+    margin-left: 2px;
+    background: var(--main-color);
+    width: 18%;
+}
+
+.zs-information__title {
+    background-color: var(--select-color);
+    text-align: center;
+    padding: 5px;
+    box-shadow: 0 0 4px .5px var(--text-color);
+    user-select: none;
+}
+
+.zs-information__table {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.zs-information__row {
+    width: 99%;
+    display: grid;
+    grid-template-columns: 30% 30% 30% 10%;
+    text-align: center;
+}
+
+.zs-information__row button {
+    padding: 2px;
+    margin: 2px;
+}
+.zs-information__row button img {
+    box-shadow: none;
+}
+
+.zs-information__row * {
+    box-shadow: 0 0 3px .5px var(--text-color);
+    padding: 3px;
+}

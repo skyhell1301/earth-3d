@@ -25,9 +25,6 @@
     grid-template-columns: 93% 7%;
     cursor: pointer;
 }
-.tle-params__open-tle {
-
-}
 
 .tle-params__open-tle-button {
     transition: all 0.3s;

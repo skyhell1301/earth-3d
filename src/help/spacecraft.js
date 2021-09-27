@@ -186,7 +186,7 @@ export async function createSpacecraft(tle, stl, date) {
  */
 function createOrbit() {
   const lineMaterial = new THREE.LineBasicMaterial({
-    color: 'green'
+    color: 'rgb(255,255,255)'
   });
   const lineGeometry = new THREE.BufferGeometry()
 
@@ -233,9 +233,10 @@ function createSpacecraftPoint(coordinates) {
  * @return {{Координаты}}
  */
 function getSpacecraftPointCoordinates(spacecraftCoordinates, date) {
-  let spacecraftLonLatHeight = satellite.eciToGeodetic(spacecraftCoordinates, satellite.gstime(date))
-  spacecraftLonLatHeight.height = 0
-  let eci = ecfToEci(satellite.geodeticToEcf(spacecraftLonLatHeight), satellite.gstime(date))
+  let geo = satellite.eciToGeodetic(spacecraftCoordinates, satellite.gstime(date))
+  geo.height = 0
+
+  let eci = ecfToEci(satellite.geodeticToEcf(geo), satellite.gstime(date))
   let pointCoordinates = {}
   pointCoordinates.x = getNormalHeight(eci.x)
   pointCoordinates.y = getNormalHeight(eci.y)
