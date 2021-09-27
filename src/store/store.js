@@ -4,6 +4,7 @@ import appStateReducer from "./reducers/appStateReducer";
 import spacecraftStateReducer from "./reducers/spacecraftStateReducer";
 import ordersReducer from "./reducers/ordersReducer";
 import interfaceStateReducer from "./reducers/interfaceStateReducer";
+import earthStationsReducer from "./reducers/earthStationsReducer";
 
 export default configureStore({
   reducer: {
@@ -11,7 +12,8 @@ export default configureStore({
     appState: appStateReducer,
     spacecraft: spacecraftStateReducer,
     orders: ordersReducer,
-    interface: interfaceStateReducer
+    interface: interfaceStateReducer,
+    earthStations: earthStationsReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

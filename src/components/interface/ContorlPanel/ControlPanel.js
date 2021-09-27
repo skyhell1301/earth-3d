@@ -2,6 +2,7 @@ import React from "react"
 import './ControlPanel.css'
 import ViewControl from "./ViewControl/ViewControl";
 import SpacecraftControl from "./SpacecraftControl/SpacecraftControl";
+import EarthStationControl from "./EarthStationControl/EarthStationControl";
 
 function ControlPanel() {
 
@@ -11,6 +12,7 @@ function ControlPanel() {
       <div className="control-panel__container">
         <ViewControl/>
         <SpacecraftControl/>
+        <EarthStationControl/>
       </div>
     </div>
   )

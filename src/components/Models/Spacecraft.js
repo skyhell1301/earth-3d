@@ -19,6 +19,7 @@ import {
   WGSToTHREECoordinates
 } from "../../help/coordinatesCalculate";
 import {setLoadStatus} from "../../store/reducers/appStateReducer";
+import calculateZSRadius from "../../help/earthStation";
 
 function Spacecraft({date, tle, isOrbit= true, orientationEdges}) {
 
@@ -185,6 +186,7 @@ function Spacecraft({date, tle, isOrbit= true, orientationEdges}) {
       dispatch(setSubPoint(myStl.lonAndLat))
       dispatch(setOrbitPoint(myStl.orbitPointsArray))
     })
+    calculateZSRadius()
     // eslint-disable-next-line
   }, [])
 
@@ -202,6 +204,7 @@ function Spacecraft({date, tle, isOrbit= true, orientationEdges}) {
   useEffect(() => {
     if (spacecraft) {
       spacecraft.updateTLE(tle)
+      updateProjection()
       invalidate()
       dispatch(setSubPoint(spacecraft.lonAndLat))
       dispatch(setOrbitPoint(spacecraft.orbitPointsArray))

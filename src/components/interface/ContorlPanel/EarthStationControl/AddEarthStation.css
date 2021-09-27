@@ -1,0 +1,17 @@
+.add-station {
+    display: flex;
+    flex-direction: column;
+}
+
+.add-station * {
+    margin-bottom: 5px;
+}
+
+.add-station__label {
+    display: flex;
+    justify-content: space-between;
+}
+
+.add-station__button {
+
+}

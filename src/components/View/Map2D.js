@@ -14,6 +14,7 @@ import * as source from "ol/source";
 import * as layer from "ol/layer";
 import {Circle, Fill, Stroke, Style} from "ol/style";
 import {fetchOrders} from "../../store/reducers/ordersReducer";
+import calculateZSRadius from "../../help/earthStation";
 
 
 function Map2D({className}) {
@@ -26,6 +27,8 @@ function Map2D({className}) {
   const orbitPointsArray = useSelector(state => state.spacecraft.orbitPoints)
   const scannerProjection = useSelector(state => state.spacecraft.scannerProjection)
   const deviationProjection = useSelector(state => state.spacecraft.deviationProjection)
+  const zsList = useSelector(state => state.earthStations.zsList)
+  const isZSShow = useSelector(state => state.earthStations.isShow)
 
 
   const dispatch = useDispatch()
@@ -101,6 +104,92 @@ function Map2D({className}) {
   }
 
   useEffect(() => {
+    const layers = map.getLayers().getArray()
+
+    zsList.forEach(zs => {
+      let flag = true
+      layers.forEach(value => {
+        if (value.get('name') === zs.name) {
+          flag = false
+        }
+      })
+      if (flag) {
+        addZS(zs.longitude, zs.latitude, 500, zs.name)
+      }
+    })
+    // eslint-disable-next-line
+  }, [zsList])
+
+  function addZS(longitude, latitude, orbitHeight = 500, name) {
+    let ZSZone5 = new layer.Vector({
+      source: new source.Vector({
+        features: [new Feature(new geom.Polygon([calculateZSRadius(longitude, latitude, 5, orbitHeight)]))]
+      }),
+      style: new Style({
+        stroke: new Stroke({
+          color: 'rgb(145,9,50)',
+          width: 3,
+        }),
+        fill: new Fill({
+          color: 'rgba(222,22,75,0.2)',
+        }),
+      }),
+      name: name,
+      zIndex: 10
+    })
+
+    let ZSZone7 = new layer.Vector({
+      source: new source.Vector({
+        features: [new Feature(new geom.Polygon([calculateZSRadius(longitude, latitude, 7, orbitHeight)]))]
+      }),
+      style: new Style({
+        stroke: new Stroke({
+          color: 'rgb(11,105,6)',
+          width: 3,
+        }),
+        fill: new Fill({
+          color: 'rgba(27,231,11,0.2)',
+        }),
+      }),
+      name: name,
+      zIndex: 11
+    })
+
+    let ZSPoint = new layer.Vector({
+      source: new source.Vector({
+        features: [new Feature({
+          geometry: new geom.Point(fromLonLat([longitude, latitude])),
+        })]
+      }),
+      style: new Style({
+        image: new Circle({
+          radius: 5,
+          fill: new Fill({color: 'rgba(222,22,75)'}),
+          stroke: new Stroke({color: '#2b2b2b', width: 2})
+        }),
+      }),
+      name: name,
+      zIndex: 12
+    })
+
+    map.addLayer(ZSZone5)
+    map.addLayer(ZSZone7)
+    map.addLayer(ZSPoint)
+  }
+
+  useEffect(()=>{
+    const layers = map.getLayers().getArray()
+    layers.forEach(layer => {
+      zsList.forEach(zs => {
+        if(layer.get('name') === zs.name) {
+          layer.setVisible(isZSShow)
+        }
+      })
+    })
+    // eslint-disable-next-line
+  }, [isZSShow])
+
+  useEffect(() => {
     if (orbitPointsArray.length > 0) {
       orbitLayer.getSource().addFeatures(getOrbitFeaturesArray())
     }
@@ -108,7 +197,7 @@ function Map2D({className}) {
   }, [orbitPointsArray])
 
   useEffect(() => {
-    if(!is3D) updateSpacecraftPoint()
+    if (!is3D) updateSpacecraftPoint()
     // eslint-disable-next-line
   }, [spacecraftSubPoint])
 
@@ -199,6 +288,7 @@ function Map2D({className}) {
     map.addLayer(deviationProjectionLayer)
     map.addLayer(scannerProjectionLayer)
     map.addLayer(spacecraftPointLayer)
+
     map.setTarget('map2D')
     map.render()
 
