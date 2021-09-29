@@ -6,7 +6,7 @@ import {STLLoader} from "three/examples/jsm/loaders/STLLoader";
 
 export async function createSpacecraft(tle, stl, date) {
   let model = await loadModel(stl)
-  model = new THREE.Mesh(model, new THREE.MeshBasicMaterial())
+  model = new THREE.Mesh(model, new THREE.MeshPhongMaterial({color: 'rgb(196,196,196)'}))
 
   let satrec = getSatrec(tle)
   let positionAndVelocity = satellite.propagate(satrec, date)

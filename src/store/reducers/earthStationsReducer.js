@@ -6,15 +6,15 @@ export const earthStationsSlice = createSlice({
   initialState: {
     zsList: [
       {
-        name: 'ТКЦ', longitude: 37.378847, latitude: 55.558741, zone5: calculateZSRadius(37.378847, 55.558741),
-        zone7: calculateZSRadius(37.378847, 55.558741, 7)
+        name: 'Переславль', longitude: 38.8562600, latitude: 56.7393400, zone5: calculateZSRadius(38.8562600, 56.7393400),
+        zone7: calculateZSRadius(38.8562600, 56.7393400, 7)
       },
       {
-        name: 'Хабаровск',
-        longitude: 135,
-        latitude: 48,
-        zone5: calculateZSRadius(135, 48),
-        zone7: calculateZSRadius(135, 48, 7)
+        name: 'Новосибирск',
+        longitude: 82.9346000,
+        latitude: 55.0415000,
+        zone5: calculateZSRadius(82.9346000, 55.0415000),
+        zone7: calculateZSRadius(82.9346000, 55.0415000, 7)
       }
     ],
     isShow: true

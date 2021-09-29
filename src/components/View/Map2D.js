@@ -190,6 +190,8 @@ function Map2D({className}) {
 
   useEffect(() => {
     if (orbitPointsArray.length > 0) {
+      // orbitLayer.getSource().remove
+      orbitLayer.getSource().clear()
       orbitLayer.getSource().addFeatures(getOrbitFeaturesArray())
     }
     // eslint-disable-next-line

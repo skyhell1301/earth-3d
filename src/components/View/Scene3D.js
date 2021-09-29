@@ -40,7 +40,7 @@ function Scene3D({className}) {
           <Spacecraft date={date} tle={tle} isOrbit={orbitIsView} orientationEdges={orientationEdges}/>
           <EarthStation/>
         </Provider>
-        <hemisphereLight args={[0xffffff, 0x444444, 0.4]} position={[100, 0, 0]}/>
+        <hemisphereLight args={[0xffffff, 0x444444, 0.2]} position={[0, 0, 100]}/>
         <Stats/>
       </Suspense>
     </Canvas>
