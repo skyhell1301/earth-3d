@@ -190,7 +190,6 @@ function Map2D({className}) {
 
   useEffect(() => {
     if (orbitPointsArray.length > 0) {
-      // orbitLayer.getSource().remove
       orbitLayer.getSource().clear()
       orbitLayer.getSource().addFeatures(getOrbitFeaturesArray())
     }
@@ -245,7 +244,8 @@ function Map2D({className}) {
           fill: new Fill({color: '#e4eae2'}),
           stroke: new Stroke({color: '#2b2b2b', width: 2})
         }),
-      })
+      }),
+      zIndex: 22
     });
 
     let deviationProjectionLayer = new layer.Vector({
@@ -260,7 +260,8 @@ function Map2D({className}) {
         fill: new Fill({
           color: 'rgba(0, 0, 255, 0.5)',
         }),
-      })
+      }),
+      zIndex: 20
     });
 
     let scannerProjectionLayer = new layer.Vector({
@@ -275,8 +276,28 @@ function Map2D({className}) {
         fill: new Fill({
           color: 'rgba(49,222,22,0.5)',
         }),
-      })
+      }),
+      zIndex: 21
     });
+    // let atm = []
+    // for(let lat = -90; lat < 90; lat ++) {
+    //   for(let lon = -180; lon < 180; lon ++) {
+    //     atm.push(new Feature({geometry: new geom.Point(fromLonLat([lon, lat]))}))
+    //   }
+    // }
+    // let atmosphereLayer = new layer.Vector({
+    //   source: new source.Vector({
+    //     features: atm
+    //   }),
+    //   style: new Style({
+    //     image: new Circle({
+    //       radius: 1,
+    //       fill: new Fill({color: '#e4eae2'}),
+    //       stroke: new Stroke({color: '#2b2b2b', width: 2})
+    //     }),
+    //   })
+    // });
+
 
     let mapLayer = new TileLayer({
       source: new XYZ({
@@ -289,10 +310,11 @@ function Map2D({className}) {
     map.addLayer(deviationProjectionLayer)
     map.addLayer(scannerProjectionLayer)
     map.addLayer(spacecraftPointLayer)
+    // map.addLayer(atmosphereLayer)
+
 
     map.setTarget('map2D')
     map.render()
-
     // view.on('change', () => {
     //   dispatch(setZoom(view.getZoom() * coefficient))
     //   dispatch(setCenter(olProj.transform(view.getCenter(), 'EPSG:3857', 'EPSG:4326')))
@@ -305,7 +327,7 @@ function Map2D({className}) {
       let featArray = []
       let startPoint = orbitPointsArray[0]
       let endPoint = orbitPointsArray[1]
-      for (let i = 2; i < orbitPointsArray.length; i++) {
+      for (let i = 2; i < orbitPointsArray.length; i = i + 4) {
         if (Math.sign(startPoint[0]) === Math.sign(endPoint[0])) {
           featArray.push(new Feature({
             'geometry': new geom.LineString([fromLonLat(startPoint), fromLonLat(endPoint)])

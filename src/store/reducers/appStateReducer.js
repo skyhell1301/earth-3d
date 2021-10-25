@@ -5,6 +5,7 @@ export const appStateSlice = createSlice({
   initialState: {
     is3D: true,
     isLoaded: false,
+    isPlayed: false,
     localDate: new Date().toISOString(),
   },
   reducers: {
@@ -25,6 +26,9 @@ export const appStateSlice = createSlice({
     setLocalDate: (state, action: PayloadAction<Date>) => {
       state.localDate = action.payload.toISOString()
     },
+    setPlayed:(state, action: PayloadAction<Date>) => {
+      state.isPlayed = action.payload
+    },
     addMinute(state) {
       let date = new Date(state.localDate)
       date.setMinutes(date.getMinutes() + 1)
@@ -42,5 +46,5 @@ export const appStateSlice = createSlice({
 
 
 
-export const {setSceneState, setLoadStatus, setLocalDate,addMinute, addSecond} = appStateSlice.actions
+export const {setSceneState, setLoadStatus, setLocalDate,addMinute, addSecond, setPlayed} = appStateSlice.actions
 export default appStateSlice.reducer

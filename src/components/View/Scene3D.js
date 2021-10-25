@@ -5,6 +5,7 @@ import store from "../../store/store";
 import Stats from "../Stats";
 import LoadingView from "./LoadingView";
 import EarthStation from "../Models/EarthStation";
+import Atmosphere from "../Models/Atmosphere";
 
 //Lazy loading components
 const Sun = React.lazy(() => import("../Models/Sun"))
@@ -21,6 +22,8 @@ function Scene3D({className}) {
   const orientationEdges = useSelector(state => state.spacecraft.orientationEdges)
   const isAxes = useSelector(state => state.interface.isAxes)
   const isGrid = useSelector(state => state.interface.isGrid)
+  const isAtmosphere = useSelector(state => state.atmosphere.isShow)
+  const isEarthStations = useSelector(state => state.earthStations.isShow)
 
   return (
     <Canvas
@@ -33,12 +36,13 @@ function Scene3D({className}) {
         <Provider store={store}>
           <Galaxy/>
           <Sun date={date}/>
+          <Atmosphere isVisible={isAtmosphere}/>
           <Earth/>
           <CameraControl/>
           {isAxes ? <axesHelper args={[5]}/> : null}
           {isGrid ? <gridHelper/> : null}
           <Spacecraft date={date} tle={tle} isOrbit={orbitIsView} orientationEdges={orientationEdges}/>
-          <EarthStation/>
+          <EarthStation isVisible={isEarthStations}/>
         </Provider>
         <hemisphereLight args={[0xffffff, 0x444444, 0.2]} position={[0, 0, 100]}/>
         <Stats/>

@@ -5,18 +5,13 @@ import TLE from "tle";
 import {STLLoader} from "three/examples/jsm/loaders/STLLoader";
 
 export async function createSpacecraft(tle, stl, date) {
-  let model = await loadModel(stl)
-  model = new THREE.Mesh(model, new THREE.MeshPhongMaterial({color: 'rgb(196,196,196)'}))
+  let model = new THREE.Mesh(await loadModel(stl), new THREE.MeshPhongMaterial({color: 'rgb(121,121,121)'}))
 
   let satrec = getSatrec(tle)
   let positionAndVelocity = satellite.propagate(satrec, date)
   let positionEci = positionAndVelocity.position
 
   model.scale.set(0.00003, 0.00003, 0.00003)
-  // model.scale.set(0.1, 0.1, 0.1)
-  // model.position.set(getNormalHeight(positionEci.x), getNormalHeight(positionEci.z), -getNormalHeight(positionEci.y))
-  // model.lookAt(0, 0, 0)
-  // model.rotateY(satellite.degreesToRadians(180))
   model.name = 'spacecraft'
 
   let spacecraft = {
@@ -25,7 +20,7 @@ export async function createSpacecraft(tle, stl, date) {
     date: date,
     satrec: satrec,
     height: 0, //км
-    orbit: createOrbit(satrec, date, TLE.parse(tle).motion),
+    orbit: createOrbit(),
     orbitPointsArray: [],
     spacecraftPoint: createSpacecraftPoint(getSpacecraftPointCoordinates(WGSToTHREECoordinates(positionEci), date)),
     lonAndLat: {},
@@ -86,7 +81,7 @@ export async function createSpacecraft(tle, stl, date) {
 
       this.updateMatrixWorld()
     },
-    updateDeviationBand: function() {
+    updateDeviationBand: function () {
       let clone = this.clone()
       let edge_rad = satellite.degreesToRadians(45)
 
@@ -102,7 +97,7 @@ export async function createSpacecraft(tle, stl, date) {
       let clone = this.clone()
 
       let Obzor_rad = 0.02359562
-      let widthEdge_rad = Obzor_rad  / 2
+      let widthEdge_rad = Obzor_rad / 2
 
       clone.rotateY(widthEdge_rad)
       clone.getWorldDirection(this.currentScannerProjection.left)
@@ -119,7 +114,7 @@ export async function createSpacecraft(tle, stl, date) {
       let positionAndVelocity
       let orbitPointsMeshArray = []
       let orbitPointsLonLatArray = []
-      for (let i = 0; i <= minuteForTurn + 1; i = i + 1) {
+      for (let i = 0; i <= minuteForTurn; i = i + 1) {
         let newDate = addSeconds(this.date, i)
         positionAndVelocity = satellite.propagate(this.satrec, newDate)
         let ecf = satellite.eciToEcf(positionAndVelocity.position, satellite.gstime(newDate))
@@ -186,7 +181,8 @@ export async function createSpacecraft(tle, stl, date) {
  */
 function createOrbit() {
   const lineMaterial = new THREE.LineBasicMaterial({
-    color: 'rgb(255,255,255)'
+    color: 'rgb(85,28,131)',
+    linewidth: 2
   });
   const lineGeometry = new THREE.BufferGeometry()
 

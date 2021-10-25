@@ -13,28 +13,17 @@ import geojson from '../../assets/JSON/countries.json'
 // import {setCenter} from "../../store/reducers/cameraPositionReducer";
 
 function Earth() {
-  const {camera} = useThree()
+  const {camera, invalidate} = useThree()
   const [globe, setGlobe] = useState(null);
-  const [earth] = useState(getEarth(camera))
+  const [earth,setEarth] = useState(null)
   // const [map, setMap] = useState(null)
 
   // const is3D = useSelector(state=> state.appState.is3D)
   // const dispatch = useDispatch()
 
-  function getGlobe() {
-    if (earth && globe) {
-      return (
-        <>
-          <primitive object={earth} name={'Earth'}/>
-          <primitive object={globe}/>
-        </>
-      )
-    } else {
-      return null
-    }
-  }
 
   useEffect(() => {
+    setEarth(<primitive object={getEarth(camera)} name={'Earth'}/>)
     // const osm = new layer.Tile({
     //   extent: [-180, -90, 180, 90],
     //   source: new source.OSM()
@@ -117,7 +106,9 @@ function Earth() {
           )
           newMesh.material.map = new THREE.CanvasTexture(mapCanvas)
           newMesh.material.needsUpdate = true
-          if (newMesh !== globe) setGlobe(newMesh)
+          if (newMesh !== globe) setGlobe(<primitive object={newMesh}/>)
+          invalidate()
+
         }
       )
     })
@@ -146,7 +137,10 @@ function Earth() {
     // }
   })
 
-  return getGlobe()
+  return <>
+    {globe}
+    {earth}
+  </>
 }
 
 export default Earth

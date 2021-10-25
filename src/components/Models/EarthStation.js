@@ -5,7 +5,7 @@ import {getNormalHeight, WGSToTHREECoordinates} from "../../help/coordinatesCalc
 import * as THREE from "three"
 import {degreesToRadians} from "satellite.js";
 
-function EarthStation() {
+function EarthStation({isVisible = true}) {
   const stationsList = useSelector(state => state.earthStations.zsList)
   const [arrayZS, setArrayZS] = useState(null)
 
@@ -71,7 +71,7 @@ function EarthStation() {
   }, [stationsList])
 
 
-  return <>{arrayZS}</>
+  return <>{isVisible ? arrayZS : null}</>
 }
 
 export default EarthStation

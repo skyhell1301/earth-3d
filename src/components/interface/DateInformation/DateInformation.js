@@ -10,7 +10,7 @@ function DateInformation() {
   const dispatch = useDispatch()
 
   function changeDate(newDate) {
-    dispatch(setLocalDate(new Date(newDate)))
+    if(newDate) dispatch(setLocalDate(new Date(newDate)))
   }
 
   function getLocalDateString(date) {

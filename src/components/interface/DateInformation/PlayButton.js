@@ -2,21 +2,21 @@ import React, {useEffect, useState} from "react"
 import './PlayButton.css'
 import playSvg from '../../../assets/img/svg/play.svg'
 import pauseSvg from '../../../assets/img/svg/pause.svg'
-import {useDispatch} from "react-redux";
-import {addSecond} from "../../../store/reducers/appStateReducer";
+import {useDispatch, useSelector} from "react-redux";
+import {addSecond, setPlayed} from "../../../store/reducers/appStateReducer";
 
 function PlayButton() {
-  const [play, setPlay] = useState(false)
+  const isPlayed = useSelector(state => state.appState.isPlayed)
   const [timer, setTimer] = useState(null)
 
   const dispatch = useDispatch()
 
   function start() {
-    setPlay(!play)
+    dispatch(setPlayed(!isPlayed))
   }
 
   useEffect(()=>{
-    if(play) {
+    if(isPlayed) {
       setTimer(
         setInterval(()=>{
           dispatch(addSecond())
@@ -26,13 +26,13 @@ function PlayButton() {
       clearInterval(timer)
     }
     // eslint-disable-next-line
-  }, [play])
+  }, [isPlayed])
 
   return(
     <button onClick={start}
             className='play-button'
     >
-      <img alt='' className='play-button__img' src={play ? pauseSvg : playSvg}/>
+      <img alt='' className='play-button__img' src={isPlayed ? pauseSvg : playSvg}/>
     </button>
   )
 }

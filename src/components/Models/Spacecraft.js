@@ -1,29 +1,30 @@
 import React, {useEffect, useRef, useState} from "react"
-import {createSpacecraft, ecfToEci} from "../../help/spacecraft";
+import {createSpacecraft, ecfToEci} from "../../help/spacecraft"
 import satelliteStl from '../../assets/models/smotr/smotr_ver2.stl'
-import {useThree} from "@react-three/fiber";
-import {useDispatch} from "react-redux";
+import {useThree} from "@react-three/fiber"
+import {useDispatch, useSelector} from "react-redux"
 import {
   setDeviationScannerProjection,
   setOrbitPoint,
   setScannerProjection,
   setSubPoint,
   setTLE
-} from "../../store/reducers/spacecraftStateReducer";
-import * as THREE from "three";
-import * as satellite from "satellite.js";
+} from "../../store/reducers/spacecraftStateReducer"
+import * as THREE from "three"
+import * as satellite from "satellite.js"
 import {
   getNormalHeight,
   normalToRealHeight,
   THREEToWGSCoordinates,
   WGSToTHREECoordinates
-} from "../../help/coordinatesCalculate";
-import {setLoadStatus} from "../../store/reducers/appStateReducer";
-import calculateZSRadius from "../../help/earthStation";
+} from "../../help/coordinatesCalculate"
+import {setLoadStatus} from "../../store/reducers/appStateReducer"
+import calculateZSRadius from "../../help/earthStation"
 
-function Spacecraft({date, tle, isOrbit= true, orientationEdges}) {
+function Spacecraft({date, tle, isOrbit = true, orientationEdges}) {
 
   const {scene, invalidate} = useThree()
+  const isPlayed = useSelector(state => state.appState.isPlayed)
   const dispatch = useDispatch()
   const spacecraftRef = useRef(null);
 
@@ -58,7 +59,6 @@ function Spacecraft({date, tle, isOrbit= true, orientationEdges}) {
           let ray5 = new THREE.Raycaster(spacecraft.position, spacecraft.currentScannerProjection.right)
 
 
-
           let rayIntersects1 = ray1.intersectObject(earth, true)
           let rayIntersects2 = ray2.intersectObject(earth, true)
           let rayIntersects3 = ray3.intersectObject(earth, true)
@@ -91,9 +91,9 @@ function Spacecraft({date, tle, isOrbit= true, orientationEdges}) {
               ecf.z = getNormalHeight(ecf.z)
 
               // if(index !== 1) {
-                geo.longitude = geo.longitude * 180 / Math.PI
-                geo.latitude = geo.latitude * 180 / Math.PI
-                deviationScannerGeoProjection.push(geo)
+              geo.longitude = geo.longitude * 180 / Math.PI
+              geo.latitude = geo.latitude * 180 / Math.PI
+              deviationScannerGeoProjection.push(geo)
               // }
               return ecf
             })
@@ -194,6 +194,7 @@ function Spacecraft({date, tle, isOrbit= true, orientationEdges}) {
     if (spacecraft) {
       spacecraft.move(date)
       updateProjection()
+      if (!isPlayed) spacecraft.updateOrbit()
       invalidate()
       dispatch(setSubPoint(spacecraft.lonAndLat))
       dispatch(setOrbitPoint(spacecraft.orbitPointsArray))
