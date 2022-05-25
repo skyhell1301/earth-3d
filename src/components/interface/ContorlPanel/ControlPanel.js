@@ -1,8 +1,8 @@
 import React from "react"
 import './ControlPanel.css'
-import ViewControl from "./ViewControl/ViewControl";
-import SpacecraftControl from "./SpacecraftControl/SpacecraftControl";
-import EarthStationControl from "./EarthStationControl/EarthStationControl";
+import ViewControl from "./ViewControl/ViewControl"
+import SpacecraftControl from "./SpacecraftControl/SpacecraftControl"
+import EarthStationControl from "./EarthStationControl/EarthStationControl"
 
 function ControlPanel() {
 

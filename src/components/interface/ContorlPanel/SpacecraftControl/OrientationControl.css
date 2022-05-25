@@ -4,5 +4,30 @@
 }
 
 .orientation-control__item {
-    margin: 5px;
+    margin-bottom: 10px;
+}
+
+.orientation-control__item label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 3px;
+}
+
+.orientation-control__item label input {
+    margin-left: 3px;
+    width: 35px;
+    font-size: 0.9em;
+    border-radius: 2px;
+    padding-left: 3px;
+}
+
+.orientation-control__changer {
+    align-self: center;
+    width: 100%;
+}
+
+.orientation-control button {
+    font-size: 0.9em;
+    width: 95%;
+    align-self: center;
 }

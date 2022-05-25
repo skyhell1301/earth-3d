@@ -1,9 +1,10 @@
 .play-button {
     background: none;
-    font-size: 23px;
-    margin-left: 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .play-button__img {
-    position: relative;
+    width: 90%;
 }

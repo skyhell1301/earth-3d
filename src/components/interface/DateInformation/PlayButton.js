@@ -5,7 +5,7 @@ import pauseSvg from '../../../assets/img/svg/pause.svg'
 import {useDispatch, useSelector} from "react-redux";
 import {addSecond, setPlayed} from "../../../store/reducers/appStateReducer";
 
-function PlayButton() {
+function PlayButton({className}) {
   const isPlayed = useSelector(state => state.appState.isPlayed)
   const [timer, setTimer] = useState(null)
 
@@ -30,7 +30,7 @@ function PlayButton() {
 
   return(
     <button onClick={start}
-            className='play-button'
+            className={className + ' play-button'}
     >
       <img alt='' className='play-button__img' src={isPlayed ? pauseSvg : playSvg}/>
     </button>

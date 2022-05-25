@@ -1,39 +1,73 @@
 .date-container {
     position: absolute;
-    width: 510px;
     bottom: 0;
-    left: 37%;
+    left: 50%;
+    transform: translate(-50%, 0);
     color: var(--text-color);
-    font-size: 18px;
+    font-size: 0.9em;
     margin: 10px;
     background: var(--main-color);
     box-shadow: 0 0 3px .5px var(--text-color);
     border-radius: 5px;
     padding: 5px;
-    display: grid;
-    grid-template-columns: 45% 48% 7%;
+    display: flex;
     user-select: none;
     align-items: center;
-    justify-content: center;
     z-index: 10;
 }
 .date-information {
     white-space: nowrap;
 }
 
+.date-time {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .date-input {
-    font-size: 17px;
-    text-align: right;
+    font-size: 1em;
+    text-align: center;
     background-color:var(--main-color);
     color: var(--text-color);
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .date-input::-webkit-calendar-picker-indicator {
     background-color: var(--text-color);
     border-radius: 5px;
     cursor: pointer;
+}
+
+.date-button {
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+}
+
+
+@media screen and (max-width: 630px){
+    .date-container {
+        font-size: 0.6em;
+    }
+    .date-information {
+        margin-bottom: 5px;
+    }
+    .date-container {
+        flex-direction: column;
+        justify-content: space-around;
+    }
+    .date-button {
+        width: 15px;
+        height: 15px;
+    }
+    .date-input {
+        /*padding-left: 10px;*/
+        width: 105px;
+    }
+}
+
+@media screen and (max-width: 350px){
+    .date-container {
+        transform: translate(-25%, 0);
+    }
 }

@@ -6,4 +6,10 @@
 
 .view-control__item {
     margin: 7px;
+    display: flex;
+    align-items: center;
+}
+
+.view-control__item input {
+    margin-left: 3px;
 }

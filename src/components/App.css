@@ -1,6 +1,12 @@
+html {
+ overflow-x: hidden;
+}
+
 .app {
     height: 100%;
     font-family: Sans-Serif;
+    font-size: 1.5rem;
+    width: 100%;
 }
 button {
     border: 1px solid var(--main-color);
@@ -51,4 +57,18 @@ button:disabled:hover {
 
 .hide-layer {
     visibility: hidden;
+}
+
+.control-container {
+    top: 2px;
+    right: 2px;
+    position: absolute;
+    display: flex;
+    z-index: 11;
+}
+
+@media screen and (max-width: 850px){
+    .app {
+        font-size: 1rem;
+    }
 }

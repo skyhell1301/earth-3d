@@ -10,13 +10,15 @@ function SpacecraftControl() {
   const dispatch = useDispatch()
   return (
     <PanelItem title='КА'>
-      <label>
-        Орбита:
-        <input type="checkbox" checked={isOrbit}
-               onChange={() => dispatch(setOrbitIsView(!isOrbit))}
-        />
-      </label>
-      <OrientationControl/>
+      <div className='spacecraft-control'>
+        <label className='spacecraft-control__orbit'>
+          Орбита:
+          <input type="checkbox" checked={isOrbit}
+                 onChange={() => dispatch(setOrbitIsView(!isOrbit))}
+          />
+        </label>
+        <OrientationControl/>
+      </div>
     </PanelItem>
   )
 }

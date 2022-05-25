@@ -30,11 +30,13 @@ function DateInformation() {
   return (
     <div className='date-container'>
       <div className='date-information'>Текущее время (GMT+3):</div>
-      <input className='date-input'
-             onChange={e => changeDate(e.target.value)} type='datetime-local'
-             value={getLocalDateString(localDate)}
-      />
-      <PlayButton/>
+      <div className='date-time'>
+        <input className='date-input'
+               onChange={e => changeDate(e.target.value)} type='datetime-local'
+               value={getLocalDateString(localDate)}
+        />
+        <PlayButton className='date-button'/>
+      </div>
     </div>
   )
 }

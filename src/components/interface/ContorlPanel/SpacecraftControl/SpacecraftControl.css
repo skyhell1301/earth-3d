@@ -1,0 +1,14 @@
+.spacecraft-control {
+    margin: 7px;
+}
+
+.spacecraft-control__orbit{
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.spacecraft-control__orbit input {
+    margin-left: 3px;
+}
+

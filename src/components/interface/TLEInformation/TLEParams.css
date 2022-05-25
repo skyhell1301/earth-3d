@@ -1,13 +1,13 @@
 .tle-params-container {
     z-index: 10;
     color: var(--text-color);
-    font-size: 17px;
+    font-size: 0.9em;
     margin-top: 2px;
     margin-left: 2px;
     background: var(--main-color);
     position: absolute;
-    width: 18%;
-    min-width: 270px;
+    /*width: 18%;*/
+    /*min-width: 270px;*/
 }
 .tle-params__title {
     text-align: center;
@@ -18,9 +18,7 @@
 .tle-params__open-tle {
     box-shadow: none;
     background: none;
-    font-size: 18px;
-    width: 100%;
-    height: 100%;
+    font-size: 1em;
     display: grid;
     grid-template-columns: 93% 7%;
     cursor: pointer;
@@ -28,25 +26,25 @@
 
 .tle-params__open-tle-button {
     transition: all 0.3s;
+    justify-self: center;
+    align-self: center;
 }
 
 .tle-params__table {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    height: 100%;
-    width: 100%;
     transition: all 0.5s;
 }
 
-.tle-params__table * {
-    display: flex;
-    width: 100%;
+.tle-params__table-row {
+    display: grid;
+    grid-template-columns: 50% 50%;
 }
 
 .tle-params__table-item {
     box-shadow: 0 0 3px .5px var(--text-color);
     padding: 5px;
+    font-size: 0.7em;
     /*overflow-wrap: break-word;*/
 }
 
@@ -66,4 +64,10 @@
 .tle-open-leave.tle-open-leave-active {
     opacity: 0.01;
     transition: opacity 300ms ease-in;
+}
+
+@media screen and (max-width: 900px)  {
+    .tle-params-container {
+        font-size: 0.8em;
+    }
 }

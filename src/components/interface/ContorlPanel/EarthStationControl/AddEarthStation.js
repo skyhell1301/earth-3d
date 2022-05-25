@@ -29,20 +29,20 @@ function AddEarthStation() {
 
   return (
     <div className='add-station'>
-      <label className='add-station__label'>
+      <div className='add-station__label'>
         Название:
-        <input type="text" onChange={e => setName(e.target.value)} value={name}/>
-      </label>
+      </div>
+      <input type="text" className='add-station__input' onChange={e => setName(e.target.value)} value={name}/>
 
-      <label className='add-station__label'>
-        Долгота (град):
-        <input type='number' onChange={e => setLon(e.target.value)} value={lon}/>
-      </label>
+      <div className='add-station__label'>
+        Долгота (°):
+      </div>
+      <input type='number' className='add-station__input' onChange={e => setLon(e.target.value)} value={lon}/>
 
-      <label className='add-station__label'>
-        Широта (град):
-        <input type='number' onChange={e => setLat(e.target.value)} value={lat}/>
-      </label>
+      <div className='add-station__label'>
+        Широта (°):
+      </div>
+      <input type='number' className='add-station__input' onChange={e => setLat(e.target.value)} value={lat}/>
 
       <button className='add-station__button' onClick={addZS}>Добавить ЗС</button>
     </div>

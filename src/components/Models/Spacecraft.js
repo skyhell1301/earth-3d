@@ -73,7 +73,7 @@ function Spacecraft({date, tle, isOrbit = true, orientationEdges}) {
             newArray.push(rayIntersects3[0].point)
 
             let deviationScannerGeoProjection = []
-            newArray = newArray.map((ecf, index) => {
+            newArray = newArray.map((ecf) => {
               ecf.x = normalToRealHeight(ecf.x)
               ecf.y = normalToRealHeight(ecf.y)
               ecf.z = normalToRealHeight(ecf.z)

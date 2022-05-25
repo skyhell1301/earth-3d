@@ -97,8 +97,8 @@ function Earth() {
             CanvasRenderingContext2D.prototype.setTransform.apply(
               mapContext,
               matrix
-            );
-            mapContext.drawImage(canvas, 0, 0);
+            )
+            mapContext.drawImage(canvas, 0, 0)
           }
           let newMesh = new THREE.Mesh(
             new THREE.SphereGeometry(1.006, 32, 32),

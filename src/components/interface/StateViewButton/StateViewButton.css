@@ -1,9 +1,18 @@
 .view-button {
-    position: fixed;
-    right: 15.5%;
+    /*position: absolute;*/
+    /*right: 30%;*/
     z-index: 10;
+    margin-right: 10px;
     width: 40px;
     height: 40px;
-    font-size: 24px;
+    font-size: 1.1em;
     border-radius: 5px;
+}
+
+@media screen and (max-width: 850px){
+    .view-button {
+        height: 30px;
+        width: 30px;
+        margin-right: 5px;
+    }
 }

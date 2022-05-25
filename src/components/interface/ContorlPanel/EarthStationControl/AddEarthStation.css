@@ -3,15 +3,24 @@
     flex-direction: column;
 }
 
-.add-station * {
-    margin-bottom: 5px;
-}
+/*.add-station * {*/
+/*    margin-bottom: 5px;*/
+/*}*/
 
 .add-station__label {
-    display: grid;
-    grid-template-columns: 50% 50%;
+    display: flex;
+    align-items: center;
+    margin-bottom: 3px;
+}
+
+.add-station__input {
+    font-size: 1em;
+    justify-self: center;
+    margin-bottom: 7px;
+    padding-left: 3px;
+    border-radius: 2px;
 }
 
 .add-station__button {
-
+    font-size: 1em;
 }

@@ -1,10 +1,9 @@
-import React, {useEffect, useState} from "react"
+﻿import React, {useEffect, useState} from "react"
 import View from "ol/View";
 import Map from "ol/Map";
 import TileLayer from "ol/layer/Tile";
 import XYZ from "ol/source/XYZ";
 import {useDispatch, useSelector} from "react-redux";
-// import {setCenter, setZoom} from "../../store/reducers/cameraPositionReducer";
 import {fromLonLat} from 'ol/proj';
 import Feature from 'ol/Feature'
 import {fromExtent} from 'ol/geom/Polygon';
@@ -105,7 +104,7 @@ function Map2D({className}) {
   useEffect(() => {
     const layers = map.getLayers().getArray()
 
-    layers.filter((value, index) => value.get('type') === 'zs').forEach(value => map.removeLayer(value))
+    layers.filter((value) => value.get('type') === 'zs').forEach(value => map.removeLayer(value))
 
     zsList.forEach(zs => {
         addZS(zs)

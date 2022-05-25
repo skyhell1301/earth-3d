@@ -3,7 +3,7 @@ import {Canvas} from "@react-three/fiber";
 import {Provider, useSelector} from "react-redux";
 import store from "../../store/store";
 import Stats from "../Stats";
-import LoadingView from "./LoadingView";
+
 import EarthStation from "../Models/EarthStation";
 import Atmosphere from "../Models/Atmosphere";
 
@@ -32,7 +32,7 @@ function Scene3D({className}) {
       concurrent
       shadows
     >
-      <Suspense fallback={<LoadingView/>}>
+      <Suspense>
         <Provider store={store}>
           <Galaxy/>
           <Sun date={date}/>
@@ -45,7 +45,7 @@ function Scene3D({className}) {
           <EarthStation isVisible={isEarthStations}/>
         </Provider>
         <hemisphereLight args={[0xffffff, 0x444444, 0.2]} position={[0, 0, 100]}/>
-        <Stats/>
+        {/*<Stats/>*/}
       </Suspense>
     </Canvas>
 
