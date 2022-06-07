@@ -1,25 +1,25 @@
-import React, {useEffect, useRef, useState} from "react"
-import {createSpacecraft, ecfToEci} from "../../help/spacecraft"
+import React, {useEffect, useRef, useState} from 'react'
+import {createSpacecraft, ecfToEci} from '../../help/spacecraft'
 import satelliteStl from '../../assets/models/smotr/smotr_ver2.stl'
-import {useThree} from "@react-three/fiber"
-import {useDispatch, useSelector} from "react-redux"
+import {useThree} from '@react-three/fiber'
+import {useDispatch, useSelector} from 'react-redux'
 import {
   setDeviationScannerProjection,
   setOrbitPoint,
   setScannerProjection,
   setSubPoint,
   setTLE
-} from "../../store/reducers/spacecraftStateReducer"
-import * as THREE from "three"
-import * as satellite from "satellite.js"
+} from '../../store/reducers/spacecraftStateReducer'
+import * as THREE from 'three'
+import * as satellite from 'satellite.js'
 import {
   getNormalHeight,
   normalToRealHeight,
   THREEToWGSCoordinates,
   WGSToTHREECoordinates
-} from "../../help/coordinatesCalculate"
-import {setLoadStatus} from "../../store/reducers/appStateReducer"
-import calculateZSRadius from "../../help/earthStation"
+} from '../../help/coordinatesCalculate'
+import {setLoadStatus} from '../../store/reducers/appStateReducer'
+import calculateZSRadius from '../../help/earthStation'
 
 function Spacecraft({date, tle, isOrbit = true, orientationEdges}) {
 
@@ -34,14 +34,14 @@ function Spacecraft({date, tle, isOrbit = true, orientationEdges}) {
     new THREE.BufferGeometry(),
     new THREE.LineBasicMaterial({
       color: 'orange',
-      linewidth: 4,
+      linewidth: 4
     })))
 
   const [currentLineProjection] = useState(new THREE.Line(
     new THREE.BufferGeometry(),
     new THREE.LineBasicMaterial({
       color: 'red',
-      linewidth: 5,
+      linewidth: 5
     })))
 
   // const [projectionPoints, setProjectionPoints] = useState([])
@@ -179,13 +179,14 @@ function Spacecraft({date, tle, isOrbit = true, orientationEdges}) {
   }, [isOrbit])
 
   useEffect(() => {
-    let myObjPromise = createSpacecraft(tle, satelliteStl, date)
-    myObjPromise.then(myStl => {
+    const setSpacecraftModel = async () => {
+      let myStl = await createSpacecraft(tle, satelliteStl, date)
       setSpacecraft(myStl)
       dispatch(setTLE(myStl.tleString))
       dispatch(setSubPoint(myStl.lonAndLat))
       dispatch(setOrbitPoint(myStl.orbitPointsArray))
-    })
+    }
+    setSpacecraftModel()
     calculateZSRadius()
     // eslint-disable-next-line
   }, [])

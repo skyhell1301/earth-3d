@@ -2,7 +2,7 @@ import React, {Suspense} from "react"
 import {Canvas} from "@react-three/fiber";
 import {Provider, useSelector} from "react-redux";
 import store from "../../store/store";
-import Stats from "../Stats";
+// import Stats from "../Stats";
 
 import EarthStation from "../Models/EarthStation";
 import Atmosphere from "../Models/Atmosphere";

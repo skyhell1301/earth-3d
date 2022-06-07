@@ -14,7 +14,7 @@ export async function createSpacecraft(tle, stl, date) {
   model.scale.set(0.00003, 0.00003, 0.00003)
   model.name = 'spacecraft'
 
-  let spacecraft = {
+  const spacecraft = {
     tle: TLE.parse(tle),
     tleString: tle,
     date: date,
