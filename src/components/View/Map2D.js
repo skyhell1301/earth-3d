@@ -1,18 +1,18 @@
-﻿import React, {useEffect, useState} from "react"
-import View from "ol/View";
-import Map from "ol/Map";
-import TileLayer from "ol/layer/Tile";
-import XYZ from "ol/source/XYZ";
-import {useDispatch, useSelector} from "react-redux";
+import View from 'ol/View';
+import React, {useState, useEffect} from 'react';
+import Map from 'ol/Map';
+import TileLayer from 'ol/layer/Tile';
+import XYZ from 'ol/source/XYZ';
+import {useDispatch, useSelector} from 'react-redux';
 import {fromLonLat} from 'ol/proj';
 import Feature from 'ol/Feature'
 import {fromExtent} from 'ol/geom/Polygon';
-import * as olProj from "ol/proj";
-import * as geom from "ol/geom";
-import * as source from "ol/source";
-import * as layer from "ol/layer";
-import {Circle, Fill, Stroke, Style} from "ol/style";
-import {fetchOrders} from "../../store/reducers/ordersReducer";
+import * as olProj from 'ol/proj';
+import * as geom from 'ol/geom';
+import * as source from 'ol/source';
+import * as layer from 'ol/layer';
+import {Circle, Fill, Stroke, Style} from 'ol/style';
+import {fetchOrders} from '../../store/reducers/ordersReducer';
 
 
 function Map2D({className}) {
@@ -39,7 +39,7 @@ function Map2D({className}) {
 
   const [spacecraftPoint] = useState(new Feature({
     geometry: new geom.Point(fromLonLat([spacecraftSubPoint.x, spacecraftSubPoint.y])),
-    name: 'A point',
+    name: 'A point'
   }))
 
   const [deviationProjectionFeature] = useState(new Feature(new geom.Polygon([])))
@@ -47,14 +47,14 @@ function Map2D({className}) {
 
   const [orbitLayer] = useState(new layer.Vector({
     source: new source.Vector({
-      features: [],
+      features: []
     }),
     style: new Style({
       stroke: new Stroke({
         color: '#666666',
-        width: 5,
-      }),
-    }),
+        width: 5
+      })
+    })
   }))
 
 
@@ -107,7 +107,7 @@ function Map2D({className}) {
     layers.filter((value) => value.get('type') === 'zs').forEach(value => map.removeLayer(value))
 
     zsList.forEach(zs => {
-        addZS(zs)
+      addZS(zs)
     })
     // eslint-disable-next-line
   }, [zsList])
@@ -123,11 +123,11 @@ function Map2D({className}) {
       style: new Style({
         stroke: new Stroke({
           color: 'rgb(145,9,50)',
-          width: 3,
+          width: 3
         }),
         fill: new Fill({
-          color: 'rgba(222,22,75,0.2)',
-        }),
+          color: 'rgba(222,22,75,0.2)'
+        })
       }),
       name: zs.name,
       type: 'zs',
@@ -141,11 +141,11 @@ function Map2D({className}) {
       style: new Style({
         stroke: new Stroke({
           color: 'rgb(11,105,6)',
-          width: 3,
+          width: 3
         }),
         fill: new Fill({
-          color: 'rgba(27,231,11,0.2)',
-        }),
+          color: 'rgba(27,231,11,0.2)'
+        })
       }),
       name: zs.name,
       type: 'zs',
@@ -155,7 +155,7 @@ function Map2D({className}) {
     let ZSPoint = new layer.Vector({
       source: new source.Vector({
         features: [new Feature({
-          geometry: new geom.Point(fromLonLat([zs.longitude, zs.latitude])),
+          geometry: new geom.Point(fromLonLat([zs.longitude, zs.latitude]))
         })]
       }),
       style: new Style({
@@ -163,7 +163,7 @@ function Map2D({className}) {
           radius: 5,
           fill: new Fill({color: 'rgba(222,22,75)'}),
           stroke: new Stroke({color: '#2b2b2b', width: 2})
-        }),
+        })
       }),
       name: zs.name,
       type: 'zs',
@@ -211,17 +211,17 @@ function Map2D({className}) {
         let order = new layer.Vector({
           source: new source.Vector({
             features: [new Feature({
-              geometry: fromExtent(value.geometry_parsed),
+              geometry: fromExtent(value.geometry_parsed)
             })]
           }),
           style: new Style({
             stroke: new Stroke({
               color: 'blue',
-              width: 3,
+              width: 3
             }),
             fill: new Fill({
-              color: 'rgba(0, 0, 255, 0.1)',
-            }),
+              color: 'rgba(0, 0, 255, 0.1)'
+            })
           })
         })
         map.addLayer(order)
@@ -242,7 +242,7 @@ function Map2D({className}) {
           radius: 10,
           fill: new Fill({color: '#e4eae2'}),
           stroke: new Stroke({color: '#2b2b2b', width: 2})
-        }),
+        })
       }),
       zIndex: 22
     });
@@ -254,11 +254,11 @@ function Map2D({className}) {
       style: new Style({
         stroke: new Stroke({
           color: 'blue',
-          width: 10,
+          width: 10
         }),
         fill: new Fill({
-          color: 'rgba(0, 0, 255, 0.5)',
-        }),
+          color: 'rgba(0, 0, 255, 0.5)'
+        })
       }),
       zIndex: 20
     });
@@ -270,11 +270,11 @@ function Map2D({className}) {
       style: new Style({
         stroke: new Stroke({
           color: 'rgba(26,145,9)',
-          width: 10,
+          width: 10
         }),
         fill: new Fill({
-          color: 'rgba(49,222,22,0.5)',
-        }),
+          color: 'rgba(49,222,22,0.5)'
+        })
       }),
       zIndex: 21
     });
