@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 
 export const appStateSlice = createSlice({
   name: 'appState',
@@ -23,13 +23,14 @@ export const appStateSlice = createSlice({
      * @param state
      * @param action date.toISOString().subscribe(0, 19)
      */
-    setLocalDate: (state, action: PayloadAction<Date>) => {
+    setLocalDate: (state, action) => {
       state.localDate = action.payload.toISOString()
     },
-    setPlayed:(state, action: PayloadAction<Date>) => {
+    setPlayed:(state, action) => {
       state.isPlayed = action.payload
     },
     addMinute(state) {
+
       let date = new Date(state.localDate)
       date.setMinutes(date.getMinutes() + 1)
       state.localDate = date.toISOString()

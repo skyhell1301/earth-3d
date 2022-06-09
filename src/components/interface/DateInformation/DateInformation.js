@@ -1,27 +1,29 @@
-import React from "react"
+import React, {useCallback} from 'react'
 import './DateInformation.css'
-import {useDispatch, useSelector} from "react-redux";
-import {setLocalDate} from "../../../store/reducers/appStateReducer";
-import PlayButton from "./PlayButton";
+import {useDispatch, useSelector} from 'react-redux';
+import {setLocalDate} from '../../../store/reducers/appStateReducer';
+import PlayButton from './PlayButton';
 
 function DateInformation() {
 
   const localDate = new Date(useSelector(state => state.appState.localDate))
   const dispatch = useDispatch()
 
+
   function changeDate(newDate) {
-    if(newDate) dispatch(setLocalDate(new Date(newDate)))
+    if (newDate) dispatch(setLocalDate(new Date(newDate)))
   }
 
-  function getLocalDateString(date) {
+  const getLocalDateString = useCallback((date) => {
     const year = date.getFullYear()
     let month = addZeroToDate(date.getMonth() + 1)
     let day = addZeroToDate(date.getDate())
-    let hour = addZeroToDate(date.getHours() )
-    const minute = addZeroToDate(date.getMinutes() )
+    let hour = addZeroToDate(date.getHours())
+    const minute = addZeroToDate(date.getMinutes())
     const sec = addZeroToDate(date.getSeconds())
     return `${year}-${month}-${day}T${hour}:${minute}:${sec}`
-  }
+  // eslint-disable-next-line
+  }, [localDate])
 
   function addZeroToDate(number) {
     return number < 10 ? '0' + number : number

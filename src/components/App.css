@@ -34,6 +34,9 @@ button:disabled:hover {
 
 .scene {
     z-index: 1;
+    position: absolute;
+    left: 0;
+    top: 0;
 }
 
 .map3d {
@@ -52,7 +55,7 @@ button:disabled:hover {
     position: absolute;
     left: 0;
     top: 0;
-    z-index: 2;
+    z-index: 3;
 }
 
 .hide-layer {

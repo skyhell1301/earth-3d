@@ -1,12 +1,11 @@
-import * as satellite from "satellite.js";
-import {WGSToTHREECoordinates, getNormalHeight, radToDeg} from "./coordinatesCalculate";
-import * as THREE from "three";
-import TLE from "tle";
-import {STLLoader} from "three/examples/jsm/loaders/STLLoader";
+import * as satellite from 'satellite.js';
+import {WGSToTHREECoordinates, getNormalHeight, radToDeg} from './coordinatesCalculate';
+import * as THREE from 'three';
+import TLE from '../help/tleParser';
+import {STLLoader} from 'three/examples/jsm/loaders/STLLoader';
 
 export async function createSpacecraft(tle, stl, date) {
   let model = new THREE.Mesh(await loadModel(stl), new THREE.MeshPhongMaterial({color: 'rgb(121,121,121)'}))
-
   let satrec = getSatrec(tle)
   let positionAndVelocity = satellite.propagate(satrec, date)
   let positionEci = positionAndVelocity.position
@@ -30,17 +29,17 @@ export async function createSpacecraft(tle, stl, date) {
     direction: new THREE.Vector3(),
     currentScannerProjection: {
       left: new THREE.Vector3(),
-      right: new THREE.Vector3(),
+      right: new THREE.Vector3()
     },
     deviationBandProjection: {
       left: new THREE.Vector3(),
       right: new THREE.Vector3(),
-      center: new THREE.Vector3(),
+      center: new THREE.Vector3()
     },
     orientationEdges: {
       roll: 0, //крен (ось Y) в градусах
       yaw: 0, //рысканье (ось Z) в градусах
-      pitch: 0, //тангаж (ось X) в градусах
+      pitch: 0 //тангаж (ось X) в градусах
     },
     isOrbitShow: false,
     move: function move(date) {
@@ -177,9 +176,9 @@ export async function createSpacecraft(tle, stl, date) {
 
 /**
  * Создание орбиты спутника
- * @return {[Line]} Возвращает объект орбиты типа THREE.Line
+ * @return {THREE.Line} Возвращает объект орбиты типа THREE.Line
  */
-function createOrbit() {
+export function createOrbit() {
   const lineMaterial = new THREE.LineBasicMaterial({
     color: 'rgb(85,28,131)',
     linewidth: 2
@@ -211,8 +210,8 @@ function getSatrec(tle) {
 
 /**
  * Создание подспутниковой точки
- * @param {[tle]} coordinates TLE спутника
- * @return {[satellite.twoline2satrec]} Возвращает инициализированую спутниковую запись
+ * @param {{Координаты}} coordinates TLE спутника
+ * @return {THREE.Mesh} Возвращает инициализированую спутниковую запись
  */
 function createSpacecraftPoint(coordinates) {
   let pointGeometry = new THREE.SphereGeometry(0.006)
@@ -259,7 +258,7 @@ function addSeconds(date, sec) {
  * Перевод координат из ECF в ECI
  * @param ecf - координаты
  * @param gmst
- * @return {{x: number, y: number, z}}
+ * @return {{x: number, y: number, z: number}}
  */
 export function ecfToEci(ecf, gmst) {
   // ccar.colorado.edu/ASEN5070/handouts/coordsys.doc

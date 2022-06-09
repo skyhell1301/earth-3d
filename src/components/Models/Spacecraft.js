@@ -23,6 +23,8 @@ import calculateZSRadius from '../../help/earthStation'
 
 function Spacecraft({date, tle, isOrbit = true, orientationEdges}) {
 
+  // console.log(date)
+
   const {scene, invalidate} = useThree()
   const isPlayed = useSelector(state => state.appState.isPlayed)
   const dispatch = useDispatch()
@@ -236,7 +238,6 @@ function Spacecraft({date, tle, isOrbit = true, orientationEdges}) {
         <primitive ref={spacecraftRef} object={spacecraft}
                    onPointerOver={hoveredHandler}
                    onPointerLeave={leaveHandler}
-                   onContextMenu={() => console.log('kek')}
         />
         <primitive object={spacecraft.orbit}/>
         {/*<primitive object={spacecraft.spacecraftPoint}/>*/}

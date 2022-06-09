@@ -1,5 +1,5 @@
 import View from 'ol/View';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import Map from 'ol/Map';
 import TileLayer from 'ol/layer/Tile';
 import XYZ from 'ol/source/XYZ';
@@ -16,6 +16,7 @@ import {fetchOrders} from '../../store/reducers/ordersReducer';
 
 
 function Map2D({className}) {
+
   const coefficient = 240
   const zoom = useSelector(state => state.camPosition.zoom)
   const center = useSelector(state => state.camPosition.center)
@@ -45,7 +46,8 @@ function Map2D({className}) {
   const [deviationProjectionFeature] = useState(new Feature(new geom.Polygon([])))
   const [scannerProjectionFeature] = useState(new Feature(new geom.Polygon([])))
 
-  const [orbitLayer] = useState(new layer.Vector({
+  const test = useRef(new layer.Vector({
+    name: 'orbit',
     source: new source.Vector({
       features: []
     }),
@@ -56,7 +58,6 @@ function Map2D({className}) {
       })
     })
   }))
-
 
   useEffect(() => {
     if (!is3D) {
@@ -189,8 +190,10 @@ function Map2D({className}) {
 
   useEffect(() => {
     if (orbitPointsArray.length > 0) {
-      orbitLayer.getSource().clear()
-      orbitLayer.getSource().addFeatures(getOrbitFeaturesArray())
+      test.current.getSource().clear()
+      test.current.getSource().addFeatures(getOrbitFeaturesArray())
+
+      // map.render()
     }
     // eslint-disable-next-line
   }, [orbitPointsArray])
@@ -233,6 +236,7 @@ function Map2D({className}) {
 
   useEffect(() => {
     dispatch(fetchOrders())
+
     let spacecraftPointLayer = new layer.Vector({
       source: new source.Vector({
         features: [spacecraftPoint]
@@ -278,6 +282,7 @@ function Map2D({className}) {
       }),
       zIndex: 21
     });
+
     // let atm = []
     // for(let lat = -90; lat < 90; lat ++) {
     //   for(let lon = -180; lon < 180; lon ++) {
@@ -303,17 +308,28 @@ function Map2D({className}) {
         url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png'
       })
     })
-    map.setView(view)
-    map.addLayer(mapLayer)
-    map.addLayer(orbitLayer)
-    map.addLayer(deviationProjectionLayer)
-    map.addLayer(scannerProjectionLayer)
-    map.addLayer(spacecraftPointLayer)
-    // map.addLayer(atmosphereLayer)
 
+    let flag = true
+
+    map.getLayers().forEach(layer => {
+      if(layer.values_.name === 'orbit') {
+        flag = false
+      }
+    })
+
+    if(flag) {
+      map.setView(view)
+      map.addLayer(mapLayer)
+      map.addLayer(test.current)
+      map.addLayer(deviationProjectionLayer)
+      map.addLayer(scannerProjectionLayer)
+      map.addLayer(spacecraftPointLayer)
+      // map.addLayer(atmosphereLayer)
+    }
 
     map.setTarget('map2D')
     map.render()
+
     // view.on('change', () => {
     //   dispatch(setZoom(view.getZoom() * coefficient))
     //   dispatch(setCenter(olProj.transform(view.getCenter(), 'EPSG:3857', 'EPSG:4326')))

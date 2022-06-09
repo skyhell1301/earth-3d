@@ -1,34 +1,24 @@
-import React, {useEffect, useState} from "react"
+import React, {useEffect, useRef} from 'react'
 import './LoadingView.css'
 
 
 function LoadingView() {
-    const [curCome, setCurCome] = useState('.')
+  const circle = useRef()
 
-    function getText() {
-        return 'Загрузка' + curCome
+  useEffect(() => {
+    for (let i = 0; i < circle.current?.children.length; i++) {
+      circle.current?.children[i].style.setProperty('--i', i + 1)
     }
+  }, [circle])
 
-    useEffect(() => {
-        const massCome = ['.', '..', '...']
-        let i = 0
-        const timer = setInterval(() => {
-            setCurCome(massCome[i])
-            i++
-            if (i > 2) i = 0
-        }, 300)
-        return function () {
-            clearInterval(timer)
-        }
-    }, []);
-
-    return (
-        <div className='loading__background'>
-            <div className="loading__text">
-                {getText()}
-            </div>
-        </div>
-    )
+  return (
+    <div className='container'>
+      <div className='circle' ref={circle}>
+        {Array(20).fill(0).map((_, index) => <span key={index}/>)}
+      </div>
+      <div className='loading__text'>Загрузка</div>
+    </div>
+  )
 }
 
 export default LoadingView

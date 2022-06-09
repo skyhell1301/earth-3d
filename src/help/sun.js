@@ -1,7 +1,7 @@
-import {degToRad} from "three/src/math/MathUtils";
-import * as THREE from "three";
-import {WGSToTHREECoordinates, getNormalHeight, radToDeg} from "./coordinatesCalculate";
-import * as satellite from "satellite.js";
+import {degToRad} from 'three/src/math/MathUtils';
+import * as THREE from 'three';
+import {WGSToTHREECoordinates, getNormalHeight, radToDeg} from './coordinatesCalculate';
+import * as satellite from 'satellite.js';
 
 /**
  * Расчет координат Солнца в гринвической системе координат
@@ -14,7 +14,7 @@ export function getSunCoordinates(date) {
   // Вычисление модифицированной юлианской даты дня расчета.
   // let MD = 367 * date.getFullYear() - Math.floor(7 * (Math.floor((date.getMonth() + 9) / 12)) / 4) + Math.floor(275 * (date.getMonth() + 1) / 9) + date.getDate() - 678987
   let MD = 367 * date.getUTCFullYear() - Math.trunc(7 * (date.getUTCFullYear() + (Math.trunc((date.getUTCMonth() + 1 + 9) / 12))) / 4)
-            + Math.trunc(275 * (date.getUTCMonth() + 1) / 9) + date.getUTCDate() - 678987
+    + Math.trunc(275 * (date.getUTCMonth() + 1) / 9) + date.getUTCDate() - 678987
 
   // Вычисление единичного геоцентрического вектора Солнца (X,Y,Z) на дату MD и время UT в эклиптической системе координат.
   let T = (MD - 51544.5) / 36525
@@ -26,7 +26,7 @@ export function getSunCoordinates(date) {
   let Z = 0
 
   // Вычисление вектора Солнца (Xe,Ye,Ze) в экваториальной системе координат.
-  let E2 = 84381.488 - 46.815 * T - 0.00059 * (T**2) + 0.001813 * (T**3)
+  let E2 = 84381.488 - 46.815 * T - 0.00059 * (T ** 2) + 0.001813 * (T ** 3)
   let E = E2 / 3600
 
   let Xe = X
@@ -34,7 +34,7 @@ export function getSunCoordinates(date) {
   let Ze = Y * Math.sin(degToRad(E)) + Z * Math.cos(degToRad(E))
 
   // Вычисление среднего звездного времени на дату MD и время UT.
-  let S0 = 24110.54841 + 8640184 * T + 0.093104 * (T**2) - 0.0000062 * (T**3) // звездное гринвичевское время в полночь в секундах
+  let S0 = 24110.54841 + 8640184 * T + 0.093104 * (T ** 2) - 0.0000062 * (T ** 3) // звездное гринвичевское время в полночь в секундах
   let w = 1.002737909350795
   let dT = UT / 24 * 86400 * w
   let Ss = S0 + dT // звездное время в секундах
@@ -45,7 +45,7 @@ export function getSunCoordinates(date) {
   let Yg = -Xe * Math.sin(degToRad(S)) + Ye * Math.cos(degToRad(S))
   let Zg = Ze
 
-  return {x:Xg, y: Yg, z: Zg}
+  return {x: Xg, y: Yg, z: Zg}
 }
 
 /**
@@ -57,7 +57,7 @@ export function getTerminatorArray({longitude, latitude}) {
   let array = []
   let lon = -180
   // Для четкого терминатора необходимо расчитывать точки с шагом 0.001
-  for (lon; lon < 180; lon+=1) {
+  for (lon; lon < 180; lon += 1) {
     let ecf = satellite.geodeticToEcf({
       longitude: degToRad(lon),
       latitude: degToRad((180 / Math.PI) * Math.atan(-(Math.cos(degToRad(lon) - degToRad(longitude)) / Math.tan(degToRad(latitude))))),
@@ -78,18 +78,17 @@ export function getTerminatorArray({longitude, latitude}) {
  * @return {THREE.DirectionalLight} Возвращает объет класса THREE.DirectionalLight
  */
 export function createSun(date) {
-  let Sun = new THREE.DirectionalLight(0xFEFFCC, 0.4)
-  Sun.castShadow = true
+  const Sun = new THREE.DirectionalLight(0xFFFFE1, 0.7)
   Sun.point = new THREE.Mesh(new THREE.SphereGeometry(0.02), new THREE.MeshBasicMaterial({color: 'yellow'}))
   Sun.geoCoordinate = {}
   const lineMaterial = new THREE.LineBasicMaterial({
     color: 'orange',
     linewidth: 2
-  });
+  })
   Sun.terminator = null
   Sun.updateTerminator = function () {
     const lineGeometry = new THREE.BufferGeometry().setFromPoints(getTerminatorArray(Sun.geoCoordinate))
-    if(this.terminator) {
+    if (this.terminator) {
       this.terminator.geometry.copy(lineGeometry)
     } else {
       this.terminator = new THREE.Line(lineGeometry, lineMaterial)
@@ -98,7 +97,11 @@ export function createSun(date) {
   }
   Sun.move = function (date) {
     let coordinates = WGSToTHREECoordinates(getSunCoordinates(date))
-    let geo = {height: 1000000, latitude: Math.atan2(coordinates.z, Math.sqrt(coordinates.x**2 + coordinates.y**2)), longitude: Math.atan2(coordinates.y, coordinates.x)}
+    let geo = {
+      height: 1e6,
+      latitude: Math.atan2(coordinates.z, Math.sqrt(coordinates.x ** 2 + coordinates.y ** 2)),
+      longitude: Math.atan2(coordinates.y, coordinates.x)
+    }
     let ecf = satellite.geodeticToEcf(geo)
     this.geoCoordinate = {height: 1000000, latitude: radToDeg(geo.latitude), longitude: radToDeg(geo.longitude)}
     this.position.set(getNormalHeight(ecf.x), getNormalHeight(ecf.y), getNormalHeight(ecf.z))
