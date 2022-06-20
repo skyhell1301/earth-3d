@@ -1,14 +1,14 @@
-import React, {useEffect, useState} from "react"
-import {createSun} from "../../help/sun";
-import {useThree} from "@react-three/fiber";
+import React, {useEffect, useRef} from 'react'
+import {createSun} from '../../help/sun';
+import {useThree} from '@react-three/fiber';
 
 function Sun({date}) {
   const {invalidate} = useThree()
-  const [sun] = useState(createSun(new Date()))
+  const sun = useRef(createSun(new Date()))
 
   useEffect(() => {
-    if (sun) {
-      sun.move(date)
+    if (sun.current) {
+      sun.current.move(date)
       invalidate()
     }
     // eslint-disable-next-line 
@@ -16,9 +16,9 @@ function Sun({date}) {
 
   return (
     <>
-      <primitive object={sun}/>
-      <primitive object={sun.point}/>
-      <primitive object={sun.terminator}/>
+      <primitive object={sun.current}/>
+      <primitive object={sun.current.point}/>
+      <primitive object={sun.current.terminator}/>
     </>
   )
 }

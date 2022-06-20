@@ -191,7 +191,7 @@ export function createOrbit() {
 /**
  * Получение инициализированой спутниковой записи
  * @param {[tle]} tle TLE спутника
- * @return {[satellite.twoline2satrec]} Возвращает инициализированую спутниковую запись
+ * @return Возвращает инициализированую спутниковую запись
  */
 function getSatrec(tle) {
   let tleArray = tle.split('\n')
@@ -204,8 +204,7 @@ function getSatrec(tle) {
     tleLine1 = tleArray[0]
     tleLine2 = tleArray[1]
   }
-  let satrec = satellite.twoline2satrec(tleLine1, tleLine2)
-  return satrec
+  return satellite.twoline2satrec(tleLine1, tleLine2)
 }
 
 /**
@@ -239,8 +238,12 @@ function getSpacecraftPointCoordinates(spacecraftCoordinates, date) {
   return pointCoordinates
 }
 
+/**
+ * Загрузка модели
+ * @param stl - модель в формате STL
+ */
 async function loadModel(stl) {
-  return new Promise(function (resolve, reject) {
+  return await new Promise(function (resolve, reject) {
     let stlLoader = new STLLoader();
     stlLoader.load(stl, resolve, null, reject)
   })

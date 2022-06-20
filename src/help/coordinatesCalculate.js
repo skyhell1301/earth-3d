@@ -1,3 +1,8 @@
+/**
+ * Пересчет из географических координат в трехмерные
+ * @param XYCoordinates - [[долгота, широта]}
+ * @returns {[X,Y,Z]}
+ */
 export const getXYZCoordinates = XYCoordinates => {
 
   const earthEquatorRadius = 6378.137 //экваториальный радиус
@@ -19,14 +24,55 @@ export const getXYZCoordinates = XYCoordinates => {
   return [X, Y, Z]
 }
 
+/**
+ * Получение нормированной высоты (относительно центра земли)
+ * @param height высота (км)
+ * @returns нормировання высота {number}
+ */
 export const getNormalHeight = height => {
   return height / 6378.137
 }
 
+/**
+ * Получение реальной высоты (км)
+ * @param height нормировання высота
+ * @returns {number} реальная высота (км)
+ */
 export const normalToRealHeight = height => {
   return height * 6378.137
 }
 
+/**
+ * Пересчет из реальных координат в нормированные
+ * @param real координаты {x,y,z}
+ * @returns нормированные координаты {x,y,z}
+ */
+export const realToNormalCoordinates = real => {
+  let normal = {}
+  normal.x = getNormalHeight(real.x)
+  normal.y = getNormalHeight(real.y)
+  normal.z = getNormalHeight(real.z)
+  return normal
+}
+
+/**
+ * Пересчет из нормированных координат в реальные
+ * @param normal нормированные координаты {x,y,z}
+ * @returns координаты {x,y,z}
+ */
+export const normalToRealCoordinates = normal => {
+  let real = {}
+  real.x = normalToRealHeight(normal.x)
+  real.y = normalToRealHeight(normal.y)
+  real.z = normalToRealHeight(normal.z)
+  return real
+}
+
+/**
+ * Пересчет из WGS координат в координаты движка THREE
+ * @param eci WGS координаты {x,y,x}
+ * @returns {{x,y,z}} THREE координаты
+ */
 export const WGSToTHREECoordinates = eci => {
   let local = {}
   local.x = eci.x
@@ -34,6 +80,12 @@ export const WGSToTHREECoordinates = eci => {
   local.z = -eci.y
   return local
 }
+
+/**
+ * Пересчет из координат движка THREE в WGS координаты
+ * @param local THREE координаты {x,y,x}
+ * @returns {{x,y,z}} WGS координаты
+ */
 export const THREEToWGSCoordinates = local => {
   let eci = {}
   eci.x = local.x

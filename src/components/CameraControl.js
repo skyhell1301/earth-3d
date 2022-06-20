@@ -15,10 +15,10 @@ function CameraControl() {
   const dispatch = useDispatch()
 
 
-  const cameraParams = {
+  const cameraParams = useRef({
     position: [20, 0, 0],
     zoom: 450
-  }
+  })
 
   useEffect(() => {
     if (is3D && camera.zoom !== camZoom) {
@@ -37,14 +37,13 @@ function CameraControl() {
     // eslint-disable-next-line
   }, [camCenter]);
 
-
   return (
     <>
-      <OrthographicCamera ref={camRef} makeDefault={true} {...cameraParams}/>
+      <OrthographicCamera ref={camRef} makeDefault={true} {...cameraParams.current}/>
       <OrbitControls
         ref={controls}
         camera={camRef.current}
-        minZoom={250}
+        minZoom={200}
         maxZoom={4000}
       />
     </>

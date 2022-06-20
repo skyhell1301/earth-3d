@@ -1,145 +1,19 @@
-import React, {useEffect, useState} from "react"
+import React, {useEffect, useRef} from 'react'
 import getEarth from "../../help/earth";
-import {useFrame, useThree} from "@react-three/fiber"
-import Map from 'ol/Map'
-import View from 'ol/View'
-import * as THREE from "three"
-import {Fill, Stroke, Style, Text} from 'ol/style'
-import VectorLayer from 'ol/layer/Vector'
-import VectorSource from 'ol/source/Vector'
-import GeoJSON from 'ol/format/GeoJSON'
-import geojson from '../../assets/JSON/countries.json'
-// import {useDispatch, useSelector} from "react-redux";
-// import {setCenter} from "../../store/reducers/cameraPositionReducer";
+import useVectorCoutries from '../../hooks/useVectorCountries';
 
 function Earth() {
-  const {camera, invalidate} = useThree()
-  const [globe, setGlobe] = useState(null);
-  const [earth,setEarth] = useState(null)
-  // const [map, setMap] = useState(null)
-
-  // const is3D = useSelector(state=> state.appState.is3D)
-  // const dispatch = useDispatch()
-
+  const countries = useVectorCoutries('map3D')
+  const earth = useRef(null)
 
   useEffect(() => {
-    setEarth(<primitive object={getEarth(camera)} name={'Earth'}/>)
-    // const osm = new layer.Tile({
-    //   extent: [-180, -90, 180, 90],
-    //   source: new source.OSM()
-    // })
-
-    let style = new Style({
-      stroke: new Stroke({
-        color: '#000',
-        width: 1,
-        lineCap: 'round'
-      }),
-      text: new Text({
-        font: '20px Calibri,sans-serif',
-        fill: new Fill({
-          color: '#000',
-        }),
-        stroke: new Stroke({
-          color: '#000',
-          width: 1,
-        }),
-      }),
-    })
-    let vectorSource = new VectorSource({
-      features: new GeoJSON().readFeatures(geojson),
-    })
-
-    const vectorLayer = new VectorLayer({
-      source: vectorSource,
-      style: function (feature) {
-        style.getText().setText(feature.values_.ADMIN);
-        return style;
-      }
-    })
-
-    let view = new View({
-      projection: "EPSG:4326",
-      extent: [-180, -90, 180, 90],
-      center: [0, 0],
-      zoom: 1,
-      resolution: 0.225
-      // resolution: 0.1702
-    })
-
-    let map3D = new Map({
-      layers: [vectorLayer],
-      target: 'map3D',
-      view: view
-    })
-    // setMap(map3D)
-    //
-    map3D.once('rendercomplete', function () {
-      let mapCanvas = document.createElement('canvas');
-      mapCanvas.width = 8000;
-      mapCanvas.height = 4000;
-      let mapContext = mapCanvas.getContext('2d');
-      Array.prototype.forEach.call(
-        document.querySelectorAll('#map3D .ol-layer canvas'),
-        function (canvas) {
-          canvas.background = 'transparent'
-          if (canvas.width > 0) {
-            let opacity = canvas.parentNode.style.opacity;
-            mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
-            let transform = canvas.style.transform;
-            // Get the transform parameters from the style's transform matrix
-            let matrix = transform
-              // eslint-disable-next-line
-              .match(/^matrix\(([^\(]*)\)$/)[1]
-              .split(',')
-              .map(Number);
-            // Apply the transform to the export map context
-            CanvasRenderingContext2D.prototype.setTransform.apply(
-              mapContext,
-              matrix
-            )
-            mapContext.drawImage(canvas, 0, 0)
-          }
-          let newMesh = new THREE.Mesh(
-            new THREE.SphereGeometry(1.006, 32, 32),
-            new THREE.MeshLambertMaterial({transparent: true})
-          )
-          newMesh.material.map = new THREE.CanvasTexture(mapCanvas)
-          newMesh.material.needsUpdate = true
-          if (newMesh !== globe) setGlobe(<primitive object={newMesh}/>)
-          invalidate()
-
-        }
-      )
-    })
+    earth.current = <primitive object={getEarth()} name={'Earth'}/>
     // eslint-disable-next-line
   }, [])
 
-  useFrame(() => {
-    // if (is3D) {
-    //   if (map && globe) {
-    //     const currentWidth = 8000
-    //     let ray = new THREE.Raycaster()
-    //     ray.setFromCamera({x: 0, y: 0}, camera)
-    //     let intersects = ray.intersectObject(globe)
-    //
-    //     let x = map.getCoordinateFromPixel([
-    //       intersects[0]?.uv.x * currentWidth,
-    //       (intersects[0]?.uv.y * currentWidth) / 2
-    //     ])[0];
-    //
-    //     let y = -map.getCoordinateFromPixel([
-    //       intersects[0]?.uv.x * currentWidth,
-    //       (intersects[0]?.uv.y * currentWidth) / 2
-    //     ])[1];
-    //     dispatch(setCenter([x, y]))
-    //   }
-    // }
-  })
-
   return <>
-    {globe}
-    {earth}
+    {countries.current}
+    {earth.current}
   </>
 }
 
