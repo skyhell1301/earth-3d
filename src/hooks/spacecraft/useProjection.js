@@ -6,7 +6,7 @@ import {
   WGSToTHREECoordinates
 } from '../../help/coordinatesCalculate';
 import * as satellite from 'satellite.js'
-import {ecfToEci} from '../../help/spacecraft';
+import {ecfToEci} from '../../models/spacecraft';
 import {setDeviationScannerProjection, setScannerProjection} from '../../store/reducers/spacecraftStateReducer';
 import {useDispatch} from 'react-redux';
 import {useThree} from '@react-three/fiber';

@@ -1,5 +1,5 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
-import sendRESTCommand from "../../help/REST";
+import sendRESTCommand from "../../api/REST";
 
 export const fetchOrders = createAsyncThunk(
   'orders/fetchOrders',

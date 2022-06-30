@@ -10,7 +10,7 @@ function AddEarthStation() {
 
   const dispatch = useDispatch()
 
-  function addZS() {
+  const addZS = () => {
     if(name !== '') {
       dispatch(addEarthStation(
         {

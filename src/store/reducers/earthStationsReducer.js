@@ -1,5 +1,5 @@
 import {createSlice} from '@reduxjs/toolkit'
-import calculateZSRadius from "../../help/earthStation";
+import calculateZSRadius from "../../models/earthStation";
 
 export const earthStationsSlice = createSlice({
   name: 'earthStations',

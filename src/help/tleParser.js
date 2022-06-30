@@ -41,7 +41,7 @@ export default class TLE {
   }
 
   /**
-   * Create a TLE instance from JSON data
+   * Create a TLE instance from json data
    * @param {String|Object} value
    * @returns {TLE}
    */
@@ -73,7 +73,7 @@ export default class TLE {
 
     // eslint-disable-next-line
     const pattern = /([-])?([\.\d]+)([+-]\d+)?/
-    let match = null
+    let match
 
     // eslint-disable-next-line
     if (match = pattern.exec(value)) {
@@ -96,7 +96,7 @@ export default class TLE {
 
     // eslint-disable-next-line
     const pattern = /([-])?([\.\d]+)([+-]\d+)?/
-    let match = null
+    let match
 
     // eslint-disable-next-line
     if (match = pattern.exec(value)) {

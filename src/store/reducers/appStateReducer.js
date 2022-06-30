@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import {createSlice} from '@reduxjs/toolkit'
 
 export const appStateSlice = createSlice({
   name: 'appState',
@@ -6,11 +6,12 @@ export const appStateSlice = createSlice({
     is3D: true,
     isLoaded: false,
     isPlayed: false,
-    localDate: new Date().toISOString(),
+    localDate: new Date()
   },
   reducers: {
     /**
      * Установка состояния сцены
+     * @param state
      * @param action - true -> 3D, false -> 2D
      */
     setSceneState: (state, action) => {
@@ -21,31 +22,27 @@ export const appStateSlice = createSlice({
     },
     /**
      * @param state
-     * @param action date.toISOString().subscribe(0, 19)
+     * @param action date
      */
     setLocalDate: (state, action) => {
-      state.localDate = action.payload.toISOString()
+      state.localDate = action.payload
     },
-    setPlayed:(state, action) => {
+    setPlayed: (state, action) => {
       state.isPlayed = action.payload
     },
     addMinute(state) {
-
-      let date = new Date(state.localDate)
+      const date = new Date(state.localDate)
       date.setMinutes(date.getMinutes() + 1)
-      state.localDate = date.toISOString()
+      state.localDate = date
     },
     addSecond(state) {
-      let date = new Date(state.localDate)
+      const date = new Date(state.localDate)
       date.setSeconds(date.getSeconds() + 1)
-      state.localDate = date.toISOString()
-    },
+      state.localDate = date
+    }
   }
 })
 
 
-
-
-
-export const {setSceneState, setLoadStatus, setLocalDate,addMinute, addSecond, setPlayed} = appStateSlice.actions
+export const {setSceneState, setLoadStatus, setLocalDate, addMinute, addSecond, setPlayed} = appStateSlice.actions
 export default appStateSlice.reducer

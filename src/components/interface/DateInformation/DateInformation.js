@@ -3,31 +3,18 @@ import './DateInformation.css'
 import {useDispatch, useSelector} from 'react-redux';
 import {setLocalDate} from '../../../store/reducers/appStateReducer';
 import PlayButton from './PlayButton';
+import {getLocalDateString} from '../../../help/date';
 
 function DateInformation() {
 
-  const localDate = new Date(useSelector(state => state.appState.localDate))
+  const localDate = useSelector(state => state.appState.localDate)
   const dispatch = useDispatch()
 
-
-  function changeDate(newDate) {
-    if (newDate) dispatch(setLocalDate(new Date(newDate)))
+  const changeDate = (newDate) => {
+    newDate && dispatch(setLocalDate(new Date(newDate)))
   }
 
-  const getLocalDateString = useCallback((date) => {
-    const year = date.getFullYear()
-    let month = addZeroToDate(date.getMonth() + 1)
-    let day = addZeroToDate(date.getDate())
-    let hour = addZeroToDate(date.getHours())
-    const minute = addZeroToDate(date.getMinutes())
-    const sec = addZeroToDate(date.getSeconds())
-    return `${year}-${month}-${day}T${hour}:${minute}:${sec}`
-  // eslint-disable-next-line
-  }, [localDate])
-
-  function addZeroToDate(number) {
-    return number < 10 ? '0' + number : number
-  }
+  const localDateString = useCallback(getLocalDateString, [])
 
   return (
     <div className='date-container'>
@@ -35,7 +22,7 @@ function DateInformation() {
       <div className='date-time'>
         <input className='date-input'
                onChange={e => changeDate(e.target.value)} type='datetime-local'
-               value={getLocalDateString(localDate)}
+               value={localDateString(localDate)}
         />
         <PlayButton className='date-button'/>
       </div>

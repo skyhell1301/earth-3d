@@ -5,7 +5,7 @@ import './assets/css/colors.css'
 import App from './components/App'
 import {Provider} from 'react-redux'
 import store from './store/store'
-import LoadingView from './components/View/LoadingView';
+import LoadingView from './components/views/LoadingView/LoadingView';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 

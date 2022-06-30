@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-import {getAtmosphere} from "../../help/atmosphere";
+import {getAtmosphere} from "../../models/atmosphere";
 
 export const atmosphereSlice = createSlice({
   name: 'atmosphere',

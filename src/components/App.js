@@ -3,8 +3,8 @@ import './App.css';
 import {useSelector} from 'react-redux';
 import Interface from './interface/Interface';
 
-const Scene3D = lazy(() => import('./View/Scene3D'))
-const Map2D = lazy(() => import('./View/Map2D'))
+const Scene3D = lazy(() => import('./views/Scene3D'))
+const Map2D = lazy(() => import('./views/Map2D'))
 
 
 const App = () => {
@@ -21,7 +21,7 @@ const App = () => {
 
   return (
     <div className='app'>
-      {isLoaded ? <Interface/> : null}
+      {isLoaded && <Interface/>}
       <Scene3D className={'scene' + isHide3D()}/>
       <Map2D className={'map2d' + isHide2D()}/>
       <div id='map3D' className='map3d'/>
@@ -29,4 +29,4 @@ const App = () => {
   )
 }
 
-export default App;
+export default App

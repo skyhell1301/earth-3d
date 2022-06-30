@@ -1,34 +1,32 @@
-import React, {useEffect, useState} from "react"
+import React, {useEffect, useRef} from 'react'
 import './PlayButton.css'
 import playSvg from '../../../assets/img/svg/play.svg'
 import pauseSvg from '../../../assets/img/svg/pause.svg'
-import {useDispatch, useSelector} from "react-redux";
-import {addSecond, setPlayed} from "../../../store/reducers/appStateReducer";
+import {useDispatch, useSelector} from 'react-redux';
+import {addSecond, setPlayed} from '../../../store/reducers/appStateReducer';
 
 function PlayButton({className}) {
   const isPlayed = useSelector(state => state.appState.isPlayed)
-  const [timer, setTimer] = useState(null)
+  const timer = useRef(null)
 
   const dispatch = useDispatch()
 
-  function start() {
+  const start = () => {
     dispatch(setPlayed(!isPlayed))
   }
 
-  useEffect(()=>{
-    if(isPlayed) {
-      setTimer(
-        setInterval(()=>{
+  useEffect(() => {
+    if (isPlayed) {
+      timer.current = setInterval(() => {
           dispatch(addSecond())
         }, 17)
-      )
     } else {
-      clearInterval(timer)
+      clearInterval(timer.current)
+      timer.current = null
     }
-    // eslint-disable-next-line
-  }, [isPlayed])
+  }, [isPlayed, dispatch])
 
-  return(
+  return (
     <button onClick={start}
             className={className + ' play-button'}
     >

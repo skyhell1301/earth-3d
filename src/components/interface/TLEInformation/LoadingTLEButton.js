@@ -8,20 +8,21 @@ function LoadingTLEButton() {
 
   const dispatch = useDispatch()
 
-  function clickInput() {
+  const clickInput = () => {
     inputRef.current.click()
   }
 
-  function loadTLE(input) {
+  const loadTLE = (input) => {
     let files = input.files
     if (files.length > 0) {
-      let reader = new FileReader()
+      const reader = new FileReader()
       reader.readAsText(files[0], 'utf-8')
       reader.onload = function () {
         dispatch(setTLE(reader.result))
       }
     }
   }
+  
   return(
     <>
       <button onClick={clickInput}

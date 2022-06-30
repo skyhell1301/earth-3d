@@ -1,13 +1,12 @@
 import {useEffect, useState} from 'react';
 import {setLoadStatus} from '../../store/reducers/appStateReducer';
 import {useDispatch, useSelector} from 'react-redux';
-import {useThree} from '@react-three/fiber';
 import {setOrbitPoint, setSubPoint, setTLE} from '../../store/reducers/spacecraftStateReducer';
-import {createSpacecraft} from '../../help/spacecraft';
+import {createSpacecraft} from '../../models/spacecraft';
 import satelliteStl from '../../assets/models/smotr/smotr_ver2.stl';
 
 const useSpacecraft = (tle, date, orientationEdges, isOrbit) => {
-  const {invalidate} = useThree()
+
   const isPlayed = useSelector(state => state.appState.isPlayed)
   const dispatch = useDispatch()
 
@@ -21,24 +20,21 @@ const useSpacecraft = (tle, date, orientationEdges, isOrbit) => {
       dispatch(setSubPoint(myStl.lonAndLat))
       dispatch(setOrbitPoint(myStl.orbitPointsArray))
     }
-    setSpacecraftModel()
-    // eslint-disable-next-line
-  }, [])
+    if(!spacecraft) setSpacecraftModel()
+  }, [spacecraft, dispatch, tle, date])
 
   useEffect(() => {
     if (spacecraft) {
-      invalidate()
       dispatch(setLoadStatus(true))
     }
-    // eslint-disable-next-line
-  }, [spacecraft])
+  }, [spacecraft, dispatch])
 
   useEffect(() => {
-      if (spacecraft) {
-        spacecraft.updateOrientationEdges(orientationEdges)
-      }
-    // eslint-disable-next-line
-  }, [orientationEdges])
+
+    if (spacecraft) {
+      spacecraft.updateOrientationEdges(orientationEdges)
+    }
+  }, [spacecraft, orientationEdges])
 
   useEffect(() => {
     if (spacecraft) {
@@ -46,27 +42,24 @@ const useSpacecraft = (tle, date, orientationEdges, isOrbit) => {
       dispatch(setSubPoint(spacecraft.lonAndLat))
       dispatch(setOrbitPoint(spacecraft.orbitPointsArray))
     }
-    // eslint-disable-next-line
-  }, [tle])
+  }, [tle, spacecraft, dispatch])
 
   useEffect(() => {
     if (spacecraft) {
       spacecraft.move(date)
       if (!isPlayed) spacecraft.updateOrbit()
-      invalidate()
       dispatch(setSubPoint(spacecraft.lonAndLat))
       dispatch(setOrbitPoint(spacecraft.orbitPointsArray))
     }
-    // eslint-disable-next-line
-  }, [date.toString()])
+  }, [date, spacecraft, dispatch, isPlayed])
+
 
   useEffect(() => {
     if (spacecraft) {
       isOrbit ? spacecraft.showOrbit() : spacecraft.hideOrbit()
-      invalidate()
     }
-    // eslint-disable-next-line
-  }, [isOrbit])
+
+  }, [isOrbit, spacecraft])
 
   return spacecraft
 }
