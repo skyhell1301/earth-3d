@@ -1,7 +1,7 @@
 import React from 'react'
 import './OrientationControl.css'
 import {useDispatch, useSelector} from 'react-redux';
-import {setOrientationEdges} from '../../../../store/reducers/spacecraftStateReducer';
+import {setOrientationEdges} from '../../../../store/reducers/spacecraftSlices/spacecraftSlice';
 
 function OrientationControl() {
   const edges = useSelector(state => state.spacecraft.orientationEdges)

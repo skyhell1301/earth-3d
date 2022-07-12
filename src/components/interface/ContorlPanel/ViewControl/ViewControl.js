@@ -2,8 +2,8 @@ import React from "react"
 import './ViewControl.css'
 import PanelItem from "../PanelItem";
 import {useDispatch, useSelector} from "react-redux";
-import {setAxesState, setGridState} from "../../../../store/reducers/interfaceStateReducer";
-import {setAtmosphereShowStatus} from "../../../../store/reducers/atmosphereReducer";
+import {setAxesState, setGridState} from "../../../../store/reducers/appSlices/interfaceSlice";
+import {setAtmosphereShowStatus} from "../../../../store/reducers/earthSlices/atmosphereSlice";
 
 function ViewControl() {
   const isAxes = useSelector(state => state.interface.isAxes)

@@ -1,6 +1,6 @@
 import React from "react"
 import './ShowZSControl.css'
-import {setShowState} from "../../../../store/reducers/earthStationsReducer";
+import {setShowState} from "../../../../store/reducers/earthSlices/earthStationsSlice";
 import {useDispatch, useSelector} from "react-redux";
 
 function ShowZSControl() {

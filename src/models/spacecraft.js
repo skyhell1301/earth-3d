@@ -5,10 +5,11 @@ import TLE from '../help/tleParser';
 import {STLLoader} from 'three/examples/jsm/loaders/STLLoader';
 
 export async function createSpacecraft(tle, stl, date) {
-  let model = new THREE.Mesh(await loadModel(stl), new THREE.MeshPhongMaterial({color: 'rgb(121,121,121)'}))
-  let satrec = getSatrec(tle)
+  const stlModel = await loadModel(stl)
+  const model = new THREE.Mesh(stlModel, new THREE.MeshPhongMaterial({color: 'rgb(121,121,121)'}))
+  const satrec = getSatrec(tle)
   let positionAndVelocity = satellite.propagate(satrec, date)
-  let positionEci = positionAndVelocity.position
+  const positionEci = positionAndVelocity.position
 
   model.scale.set(0.00003, 0.00003, 0.00003)
   model.name = 'spacecraft'
@@ -48,8 +49,8 @@ export async function createSpacecraft(tle, stl, date) {
       this.eci_coord = positionAndVelocity.position
       this.ecf_coord = satellite.eciToEcf(positionAndVelocity.position, satellite.gstime(this.date))
 
-      let geodetic = satellite.eciToGeodetic(this.eci_coord, satellite.gstime(this.date))
-      let lonAndLat = {}
+      const geodetic = satellite.eciToGeodetic(this.eci_coord, satellite.gstime(this.date))
+      const lonAndLat = {}
       lonAndLat.x = radToDeg(geodetic.longitude)
       lonAndLat.y = radToDeg(geodetic.latitude)
       this.height = geodetic.height
@@ -62,9 +63,9 @@ export async function createSpacecraft(tle, stl, date) {
 
       this.updateMotionVector()
 
-      spacecraft.up.set(this.motionVector.ecfNormal.x, this.motionVector.ecfNormal.y, this.motionVector.ecfNormal.z)
+      this.up.set(this.motionVector.ecfNormal.x, this.motionVector.ecfNormal.y, this.motionVector.ecfNormal.z)
       const quaternion = new THREE.Quaternion();
-      let matrix = new THREE.Matrix4()
+      const matrix = new THREE.Matrix4()
 
       matrix.lookAt(this.spacecraftPoint.position, this.position, this.up)
       quaternion.setFromRotationMatrix(matrix)
@@ -243,9 +244,9 @@ function getSpacecraftPointCoordinates(spacecraftCoordinates, date) {
  * @param stl - модель в формате STL
  */
 async function loadModel(stl) {
-  return await new Promise(function (resolve, reject) {
-    let stlLoader = new STLLoader();
-    stlLoader.load(stl, resolve, null, reject)
+  return await new Promise(function (resolve) {
+    const stlLoader = new STLLoader();
+    return stlLoader.load(stl, resolve,null)
   })
 }
 

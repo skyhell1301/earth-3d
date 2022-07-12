@@ -1,7 +1,7 @@
 import React from 'react'
 import './ZSList.css'
 import {useDispatch, useSelector} from 'react-redux';
-import {deleteEarthStation} from '../../../store/reducers/earthStationsReducer';
+import {deleteEarthStation} from '../../../store/reducers/earthSlices/earthStationsSlice';
 import ZSItem from './ZSItem';
 
 function ZSList() {

@@ -1,14 +1,14 @@
 import * as layer from 'ol/layer';
 import * as source from 'ol/source';
 import {Fill, Stroke, Style} from 'ol/style';
-import {useEffect, useRef} from 'react';
+import {useCallback, useEffect, useRef} from 'react';
 import * as olProj from 'ol/proj';
 import {useSelector} from 'react-redux';
 import Feature from 'ol/Feature';
 import * as geom from 'ol/geom';
 
-const useDeviationProjectionLayer = () => {
-  const is3D = useSelector(state => state.appState.is3D)
+const useDeviationProjectionLayer = (is3D) => {
+
   const deviationProjection = useSelector(state => state.spacecraft.deviationProjection)
   const deviationProjectionFeature = useRef(new Feature(new geom.Polygon([])))
 
@@ -28,19 +28,18 @@ const useDeviationProjectionLayer = () => {
     zIndex: 20
   }))
 
-  useEffect(() => {
-    updateDeviationProjectionLayer()
-    // eslint-disable-next-line
-  }, [deviationProjection])
-
-  function updateDeviationProjectionLayer() {
-    if (deviationProjection.length && !is3D) {
+  const updateDeviationProjectionLayer = useCallback(() => {
+    if (deviationProjection.length) {
       let points = deviationProjection.map(val => {
         return olProj.transform([val.longitude, val.latitude], 'EPSG:4326', 'EPSG:3857')
       })
       deviationProjectionFeature.current.getGeometry().setCoordinates([points])
     }
-  }
+  }, [deviationProjection])
+
+  useEffect(() => {
+    if (!is3D) updateDeviationProjectionLayer()
+  }, [deviationProjection, is3D, updateDeviationProjectionLayer])
 
   return {deviationProjectionLayer, updateDeviationProjectionLayer}
 }

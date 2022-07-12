@@ -1,4 +1,4 @@
-import {useEffect, useRef} from 'react';
+import {useCallback, useEffect, useRef} from 'react';
 import Feature from 'ol/Feature';
 import * as geom from 'ol/geom';
 import {fromLonLat} from 'ol/proj';
@@ -7,10 +7,8 @@ import * as layer from 'ol/layer';
 import * as source from 'ol/source';
 import {Circle, Fill, Stroke, Style} from 'ol/style';
 
+const useSpacecraftLayer = (is3D) => {
 
-const useSpacecraftLayer = () => {
-
-  const is3D = useSelector(state => state.appState.is3D)
   const spacecraftSubPoint = useSelector(state => state.spacecraft.lonAndLat)
 
   const spacecraftPoint = useRef(new Feature({
@@ -32,14 +30,13 @@ const useSpacecraftLayer = () => {
     zIndex: 22
   }))
 
-  useEffect(() => {
-    if (!is3D) updateSpacecraftLayer()
-    // eslint-disable-next-line
+  const updateSpacecraftLayer = useCallback(() => {
+    spacecraftPoint.current.getGeometry().setCoordinates(fromLonLat([spacecraftSubPoint.x, spacecraftSubPoint.y]))
   }, [spacecraftSubPoint])
 
-  const updateSpacecraftLayer = () => {
-    spacecraftPoint.current.getGeometry().setCoordinates(fromLonLat([spacecraftSubPoint.x, spacecraftSubPoint.y]))
-  }
+  useEffect(() => {
+    if (!is3D) updateSpacecraftLayer()
+  }, [spacecraftSubPoint, is3D, updateSpacecraftLayer])
 
   return {spacecraftLayer, updateSpacecraftLayer}
 }

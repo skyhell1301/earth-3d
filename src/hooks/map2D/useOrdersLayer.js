@@ -5,7 +5,7 @@ import * as source from 'ol/source';
 import Feature from 'ol/Feature';
 import {fromExtent} from 'ol/geom/Polygon';
 import {Fill, Stroke, Style} from 'ol/style';
-import {fetchOrders} from '../../store/reducers/ordersReducer';
+import {fetchOrders} from '../../store/reducers/oredersSlices/ordersSlice';
 
 const useOrdersLayer = (map) => {
   const orders = useSelector(state => state.orders.ordersArray)

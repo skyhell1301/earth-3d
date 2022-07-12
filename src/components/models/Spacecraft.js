@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import {useThree} from '@react-three/fiber'
 import useProjection from '../../hooks/spacecraft/useProjection';
 import useSpacecraft from '../../hooks/spacecraft/useSpacecraft';
@@ -10,6 +10,12 @@ function Spacecraft({date, tle, isOrbit = true, orientationEdges}) {
   const spacecraft = useSpacecraft(tle, date, orientationEdges, isOrbit)
 
   const {deviationLineProjection, currentLineProjection} = useProjection(spacecraft, orientationEdges)
+
+  useEffect(()=> {
+    if(spacecraft) {
+      invalidate()
+    }
+  }, [spacecraft, invalidate])
 
   const hoveredHandler = () => {
     if (spacecraft) {

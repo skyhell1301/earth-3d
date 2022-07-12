@@ -2,7 +2,7 @@ import React from "react"
 import './SpacecraftControl.css'
 import PanelItem from "../PanelItem";
 import {useDispatch, useSelector} from "react-redux";
-import {setOrbitIsView} from "../../../../store/reducers/spacecraftStateReducer";
+import {setOrbitIsView} from "../../../../store/reducers/spacecraftSlices/spacecraftSlice";
 import OrientationControl from "./OrientationControl";
 
 function SpacecraftControl() {

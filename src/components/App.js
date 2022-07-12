@@ -24,7 +24,6 @@ const App = () => {
       {isLoaded && <Interface/>}
       <Scene3D className={'scene' + isHide3D()}/>
       <Map2D className={'map2d' + isHide2D()}/>
-      <div id='map3D' className='map3d'/>
     </div>
   )
 }

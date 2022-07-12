@@ -26,25 +26,13 @@ function Map2D({className}) {
   useOrdersLayer(map)
 
   const mapLayer = useMapLayer()
-  const {spacecraftLayer, updateSpacecraftLayer} = useSpacecraftLayer()
-  const {orbitLayer, updateOrbitLayer} = useOrbitLayer()
-  const {deviationProjectionLayer, updateDeviationProjectionLayer} = useDeviationProjectionLayer()
-  const {scannerProjectionLayer, updateScannerProjectionLayer} = useScannerProjectionLayer()
+  const {spacecraftLayer} = useSpacecraftLayer(is3D)
+  const {orbitLayer} = useOrbitLayer(is3D)
+  const {deviationProjectionLayer} = useDeviationProjectionLayer(is3D)
+  const {scannerProjectionLayer} = useScannerProjectionLayer(is3D)
   // const atmosphereLayer = useAtmosphereLayer()
 
   useEffect(() => {
-    if (!is3D) {
-      updateDeviationProjectionLayer()
-      updateScannerProjectionLayer()
-      updateOrbitLayer()
-      updateSpacecraftLayer()
-    }
-    // eslint-disable-next-line
-  }, [is3D])
-
-
-  useEffect(() => {
-
     let flag = true
 
     map.current.getLayers().forEach(layer => {
@@ -64,12 +52,13 @@ function Map2D({className}) {
       map.current.setTarget('map2D')
       map.current.render()
     }
-
     // eslint-disable-next-line
   }, [])
 
   return (
-    <div id='map2D' className={className}/>
+    <>
+      <div id='map2D' className={className}/>
+    </>
   )
 }
 

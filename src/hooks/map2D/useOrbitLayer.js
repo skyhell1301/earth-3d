@@ -1,4 +1,4 @@
-import {useEffect, useRef} from 'react';
+import {useCallback, useEffect, useMemo, useRef} from 'react';
 import * as layer from 'ol/layer';
 import * as source from 'ol/source';
 import {Stroke, Style} from 'ol/style';
@@ -7,7 +7,7 @@ import Feature from 'ol/Feature';
 import * as geom from 'ol/geom';
 import {fromLonLat} from 'ol/proj';
 
-const useOrbitLayer = () => {
+const useOrbitLayer = (is3D) => {
 
   const orbitPointsArray = useSelector(state => state.spacecraft.orbitPoints)
 
@@ -24,7 +24,7 @@ const useOrbitLayer = () => {
     })
   }))
 
-  const getOrbitFeaturesArray = () => {
+  const getOrbitFeaturesArray = useMemo(() => {
     if (orbitPointsArray.length > 3) {
       let featArray = []
       let startPoint = orbitPointsArray[0]
@@ -42,19 +42,18 @@ const useOrbitLayer = () => {
     } else {
       return null
     }
-  }
+  }, [orbitPointsArray])
 
-  const updateOrbitLayer = () => {
+  const updateOrbitLayer = useCallback(() => {
     if (orbitPointsArray.length > 0) {
       orbitLayer.current.getSource().clear()
-      orbitLayer.current.getSource().addFeatures(getOrbitFeaturesArray())
+      orbitLayer.current.getSource().addFeatures(getOrbitFeaturesArray)
     }
-  }
+  },[orbitPointsArray, getOrbitFeaturesArray])
 
   useEffect(() => {
-    updateOrbitLayer()
-    // eslint-disable-next-line
-  }, [orbitPointsArray])
+    if(!is3D) updateOrbitLayer()
+  }, [orbitPointsArray, updateOrbitLayer, is3D])
 
   return {orbitLayer, updateOrbitLayer}
 }

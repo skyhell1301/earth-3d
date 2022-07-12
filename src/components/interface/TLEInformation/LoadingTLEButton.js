@@ -1,7 +1,7 @@
 import React, {useRef} from "react"
 import './LoadingTLEButton.css'
 import {useDispatch} from "react-redux";
-import {setTLE} from "../../../store/reducers/spacecraftStateReducer";
+import {setTLE} from "../../../store/reducers/spacecraftSlices/spacecraftSlice";
 
 function LoadingTLEButton() {
   const inputRef = useRef()

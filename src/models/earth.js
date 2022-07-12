@@ -54,14 +54,14 @@ let createPlanet = function (options) {
 }
 
 let getEarth = function () {
-
   return createPlanet({
     surface: {
       size: 1, segments: 64, material: {
         bumpScale: 0.05, specular: new THREE.Color('grey'), shininess: 10
       },
       textures: {
-        map: earthMap, bumpMap: earthBump
+        map: earthMap,
+        bumpMap: earthBump
       }
     },
     atmosphere: {

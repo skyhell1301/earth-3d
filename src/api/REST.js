@@ -13,8 +13,6 @@ async function sendRESTCommand(url, method = 'GET', caller, jwttok, body) {
   } catch (e) {
     console.warn('Error:', e.message())
   }
-
 }
-
 
 export default sendRESTCommand

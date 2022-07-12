@@ -11,11 +11,9 @@ function Atmosphere({isVisible = true}) {
 
 
   const updateAtmosphere = useCallback(() => {
-    console.log('kek')
     let canvas = createCanvas(8000, 4000, 'matrix(1.11111, 0, 0, 1.11111, 0, 0)')
     let ctx = canvas.getContext('2d');
     setMatrixToCanvasContext(canvas)
-
 
     for (let lat in atmData) {
       for (let lon in atmData[lat]) {

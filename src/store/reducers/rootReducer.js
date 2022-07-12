@@ -1,10 +1,10 @@
-import camPositionReducer from './cameraPositionReducer';
-import appStateReducer from './appStateReducer';
-import spacecraftStateReducer from './spacecraftStateReducer';
-import ordersReducer from './ordersReducer';
-import interfaceStateReducer from './interfaceStateReducer';
-import earthStationsReducer from './earthStationsReducer';
-import atmosphereReducer from './atmosphereReducer';
+import camPositionReducer from './appSlices/cameraPositionSlice';
+import appStateReducer from './appSlices/appStateSlice';
+import spacecraftStateReducer from './spacecraftSlices/spacecraftSlice';
+import ordersReducer from './oredersSlices/ordersSlice';
+import interfaceStateReducer from './appSlices/interfaceSlice';
+import earthStationsReducer from './earthSlices/earthStationsSlice';
+import atmosphereReducer from './earthSlices/atmosphereSlice';
 
 const rootReducer = {
   camPosition: camPositionReducer,

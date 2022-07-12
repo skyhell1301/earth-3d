@@ -1,7 +1,7 @@
 import React, {useState} from "react"
 import './AddEarthStation.css'
 import {useDispatch} from "react-redux";
-import {addEarthStation} from "../../../../store/reducers/earthStationsReducer";
+import {addEarthStation} from "../../../../store/reducers/earthSlices/earthStationsSlice";
 
 function AddEarthStation() {
   const [name, setName] = useState('')

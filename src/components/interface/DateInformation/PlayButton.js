@@ -3,7 +3,7 @@ import './PlayButton.css'
 import playSvg from '../../../assets/img/svg/play.svg'
 import pauseSvg from '../../../assets/img/svg/pause.svg'
 import {useDispatch, useSelector} from 'react-redux';
-import {addSecond, setPlayed} from '../../../store/reducers/appStateReducer';
+import {addSecond, setPlayed} from '../../../store/reducers/appSlices/appStateSlice';
 
 function PlayButton({className}) {
   const isPlayed = useSelector(state => state.appState.isPlayed)

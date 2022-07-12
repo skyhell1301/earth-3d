@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
-import {setLoadStatus} from '../../store/reducers/appStateReducer';
+import {setLoadStatus} from '../../store/reducers/appSlices/appStateSlice';
 import {useDispatch, useSelector} from 'react-redux';
-import {setOrbitPoint, setSubPoint, setTLE} from '../../store/reducers/spacecraftStateReducer';
+import {setOrbitPoint, setSubPoint, setTLE} from '../../store/reducers/spacecraftSlices/spacecraftSlice';
 import {createSpacecraft} from '../../models/spacecraft';
 import satelliteStl from '../../assets/models/smotr/smotr_ver2.stl';
 
@@ -30,7 +30,6 @@ const useSpacecraft = (tle, date, orientationEdges, isOrbit) => {
   }, [spacecraft, dispatch])
 
   useEffect(() => {
-
     if (spacecraft) {
       spacecraft.updateOrientationEdges(orientationEdges)
     }
